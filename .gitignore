@@ -37,6 +37,7 @@
 /out/
 SecuritiesProjectWorkspace/out/
 SecuritiesProjectWorkspace/.idea
+.dropbox
 
 # mpeltonen/sbt-idea plugin
 .idea_modules/
