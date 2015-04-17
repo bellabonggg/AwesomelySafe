@@ -13,9 +13,7 @@ public class TestByteArrayClient {
 
         AwesomeClientSocket clientSocket = new AwesomeClientSocket("localhost", 5555);
 
-
         File file = new File("src/CA.crt");
-
 
         FileInputStream fileInputStream = new FileInputStream(file);
 
@@ -23,7 +21,6 @@ public class TestByteArrayClient {
         fileInputStream.read(dataByte);
         System.out.println(Arrays.toString(dataByte));
         clientSocket.sendByteArray(dataByte);
-
 
     }
 }
