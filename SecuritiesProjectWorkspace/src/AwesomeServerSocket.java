@@ -1,5 +1,3 @@
-
-
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.net.ServerSocket;
@@ -7,6 +5,7 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
+
 
 
 /**
@@ -124,7 +123,7 @@ public class AwesomeServerSocket {
     }
 
 
-//    Accessor methods to get the writers and readers. should not be needed
+    //    Accessor methods to get the writers and readers. should not be needed
     @Deprecated
     public PrintWriter getWriterForClient(int index) {
         return this.clientWriters.get(index);
@@ -178,6 +177,37 @@ public class AwesomeServerSocket {
 
         return "";
 
+    }
+
+    public void sendByteArrayForClient(int index, byte[] myByteArray) throws IOException {
+
+//        if (len < 0)
+//            throw new IllegalArgumentException("Negative length not allowed");
+//        if (start < 0 || start >= myByteArray.length)
+//            throw new IndexOutOfBoundsException("Out of bounds: " + start);
+//        // Other checks if needed.
+
+        // May be better to save the streams in the support class;
+        // just like the socket variable.
+        OutputStream out = this.getServerOutputStreamForClient(index);
+        DataOutputStream dos = new DataOutputStream(out);
+
+        dos.writeInt(myByteArray.length);
+        if (myByteArray.length > 0) {
+            dos.write(myByteArray, 0, myByteArray.length);
+        }
+    }
+
+    public byte[] readByteArrayForClient(int index) throws IOException {
+        InputStream in = this.getServerInputStreamForClient(index);
+        DataInputStream dis = new DataInputStream(in);
+
+        int len = dis.readInt();
+        byte[] data = new byte[len];
+        if (len > 0) {
+            dis.readFully(data);
+        }
+        return data;
     }
 
     /**

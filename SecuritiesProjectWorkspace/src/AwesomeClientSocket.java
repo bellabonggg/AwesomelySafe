@@ -1,5 +1,4 @@
 
-
 import java.io.*;
 import java.net.Socket;
 
@@ -91,6 +90,39 @@ public class AwesomeClientSocket {
         printDebugMessages("Message received from server.");
         return message;
 
+    }
+
+
+    public void sendByteArray(byte[] myByteArray) throws IOException {
+
+//        if (len < 0)
+//            throw new IllegalArgumentException("Negative length not allowed");
+//        if (start < 0 || start >= myByteArray.length)
+//            throw new IndexOutOfBoundsException("Out of bounds: " + start);
+//        // Other checks if needed.
+
+        // May be better to save the streams in the support class;
+        // just like the socket variable.
+        OutputStream out = this.getClientOutputStream();
+        DataOutputStream dos = new DataOutputStream(out);
+
+        dos.writeInt(myByteArray.length);
+        if (myByteArray.length > 0) {
+            dos.write(myByteArray, 0, myByteArray.length);
+        }
+    }
+
+    public byte[] readByteArray() throws IOException {
+        InputStream in = this.getClientInputStream();
+        DataInputStream dis = new DataInputStream(in);
+
+        int len = dis.readInt();
+        byte[] data = new byte[len];
+        if (len > 0) {
+            dis.readFully(data);
+        }
+
+        return data;
     }
 
     /**
