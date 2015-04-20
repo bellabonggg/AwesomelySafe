@@ -13,6 +13,10 @@ import java.util.Arrays;
  */
 public class TestEncryptDecrypt extends TestCase {
 
+    /**
+     * Test encryption on small string
+     * @throws IOException
+     */
     public void testEncryptDecryptString() throws IOException {
 
         String message = "Hello";
@@ -28,6 +32,10 @@ public class TestEncryptDecrypt extends TestCase {
         assertTrue(message.equals(decryptedMessage));
     }
 
+    /**
+     * Test encryption on a small file
+     * @throws IOException
+     */
     public void testEncryptDecryptSmallBytes() throws IOException {
 
 
@@ -35,20 +43,30 @@ public class TestEncryptDecrypt extends TestCase {
 
     }
 
+    /**
+     * Test encryption on a file size > 117 bytes
+     * @throws IOException
+     */
     public void testEncryptDecryptBigBytes() throws IOException {
 
         testEncryptDecryptFile("src/Keys/testFileBig.txt");
 
     }
 
+    /**
+     * Tests encryption over sockets
+     * @throws InterruptedException
+     */
+    public void testServerClient() throws InterruptedException {
 
-    public void testServerClient() {
+        final byte[][] results = new byte[2][];
 
         Thread serverThread = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
                     TestServer server = new TestServer();
+                    results[1] = server.getDecryptedBytes();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -61,15 +79,29 @@ public class TestEncryptDecrypt extends TestCase {
             @Override
             public void run() {
                 try {
-                    TestClient server = new TestClient();
+                    TestClient client = new TestClient();
+                    results[0] = client.getRawBytes();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
         });
 
+        serverThread.start();
+        clientThread.start();
+
+        serverThread.join();
+        clientThread.join();
+
+        assertTrue(Arrays.equals(results[0], results[1]));
+
     }
 
+    /**
+     * Helper test method for encryption of a file path
+     * @param path
+     * @throws IOException
+     */
     public static void testEncryptDecryptFile(String path) throws IOException {
         File file = new File(path);
 

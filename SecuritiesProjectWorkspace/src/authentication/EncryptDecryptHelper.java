@@ -16,6 +16,9 @@ import java.util.List;
  */
 public class EncryptDecryptHelper {
 
+    private static final int ENCRYPT_BLOCK_LENGTH = 117;
+    private static final int DECRYPT_BLOCK_LENGTH = 128;
+
     /**
      * Encrypts a string to a byte[]
      * @throws IOException
@@ -44,10 +47,10 @@ public class EncryptDecryptHelper {
             cipher.init(Cipher.ENCRYPT_MODE, privateKey);
 
 //            byte[] latestBlock = new byte[AuthenticationConstants.ENCRYPT_BLOCK_LENGTH];
-            List<byte[]> blocks = spitByteArray(rawBytes, AuthenticationConstants.ENCRYPT_BLOCK_LENGTH);
+            List<byte[]> blocks = spitByteArray(rawBytes, ENCRYPT_BLOCK_LENGTH);
 
 
-            return cipherAndCombine(blocks, cipher, 128);
+            return cipherAndCombine(blocks, cipher, DECRYPT_BLOCK_LENGTH);
 
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
@@ -81,11 +84,11 @@ public class EncryptDecryptHelper {
             cipher.init(Cipher.DECRYPT_MODE, publicKey);
 
 
-            List<byte[]> blocks = spitByteArray(rawBytes, 128);
+            List<byte[]> blocks = spitByteArray(rawBytes, DECRYPT_BLOCK_LENGTH);
 
 //            byte[] decryptedBytes = cipher.doFinal(rawBytes);
 
-            byte[] decryptedCombinedWithZeroes = cipherAndCombine(blocks, cipher, 117);
+            byte[] decryptedCombinedWithZeroes = cipherAndCombine(blocks, cipher, ENCRYPT_BLOCK_LENGTH);
 
             int lastValidIndex = 0;
             for (int i = decryptedCombinedWithZeroes.length - 1; i >= 0; i--) {
@@ -191,7 +194,7 @@ public class EncryptDecryptHelper {
      * @param blocks list of blocks
      * @param cipher cipher to run
      * @param cipherResultIndex length of the byte[] the cipher takes in
-     * @return
+     * @return the entire list of byte[] as a single byte[] that is ciphered
      * @throws BadPaddingException
      * @throws IllegalBlockSizeException
      */
