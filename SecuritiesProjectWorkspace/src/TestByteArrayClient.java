@@ -1,5 +1,3 @@
-import AwesomeSockets.AwesomeClientSocket;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -13,16 +11,18 @@ public class TestByteArrayClient {
 
     public static void main(String[] args) throws IOException {
 
-        AwesomeClientSocket clientSocket = new AwesomeClientSocket("localhost", 5555);
-
-        File file = new File("src/CA.crt");
-
-        FileInputStream fileInputStream = new FileInputStream(file);
-
-        byte[] dataByte = new byte[(int)file.length()];
-        fileInputStream.read(dataByte);
-        System.out.println(Arrays.toString(dataByte));
-        clientSocket.sendByteArray(dataByte);
+//        AwesomeClientSocket clientSocket = new AwesomeClientSocket("localhost", 5555);
+//        	
+//        File file = new File("src/CA.crt");
+//
+//        FileInputStream fileInputStream = new FileInputStream(file);
+//
+//        byte[] dataByte = new byte[(int)file.length()];
+//        fileInputStream.read(dataByte);
+//        System.out.println(Arrays.toString(dataByte));
+//        clientSocket.sendByteArray(dataByte);
+    	
+    	fgbnjk
 
     }
 }
