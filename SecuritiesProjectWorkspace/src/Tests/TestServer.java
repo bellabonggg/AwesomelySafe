@@ -4,7 +4,10 @@ import AwesomeSockets.AwesomeServerSocket;
 import authentication.AuthenticationConstants;
 import encryption.EncryptDecryptHelper;
 
+import javax.crypto.NoSuchPaddingException;
 import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
 /**
@@ -14,7 +17,7 @@ public class TestServer {
 
     private byte[] decryptedMessage;
 
-    public TestServer() throws IOException {
+    public TestServer() throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
 
         AwesomeServerSocket serverSocket = new AwesomeServerSocket(AuthenticationConstants.PORT);
 
@@ -22,7 +25,7 @@ public class TestServer {
         byte[] receivedMessage = serverSocket.readByteArrayForClient(0);
 
 
-        this.decryptedMessage = EncryptDecryptHelper.decryptBytes(receivedMessage);
+        this.decryptedMessage = EncryptDecryptHelper.decryptBytes(receivedMessage, TestEncryptDecrypt.getDecryptCipher());
 
 
     }
@@ -34,7 +37,7 @@ public class TestServer {
 
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
 
         TestServer server = new TestServer();
         System.out.println(Arrays.toString(server.getDecryptedBytes()));

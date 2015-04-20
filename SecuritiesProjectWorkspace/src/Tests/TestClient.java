@@ -4,9 +4,12 @@ import AwesomeSockets.AwesomeClientSocket;
 import authentication.AuthenticationConstants;
 import encryption.EncryptDecryptHelper;
 
+import javax.crypto.NoSuchPaddingException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
 /**
@@ -16,7 +19,7 @@ public class TestClient {
 
     private byte[] rawBytes;
 
-    public TestClient() throws IOException {
+    public TestClient() throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
 
         AwesomeClientSocket awesomeClientSocket = new AwesomeClientSocket(AuthenticationConstants.SERVER_IP, AuthenticationConstants.PORT);
 
@@ -31,13 +34,11 @@ public class TestClient {
         fileInputStream.read(rawBytes);
 
 //        System.out.println(Arrays.toString(rawBytes));
-        byte[] encryptString = EncryptDecryptHelper.encryptByte(rawBytes);
+        byte[] encryptString = EncryptDecryptHelper.encryptByte(rawBytes, TestEncryptDecrypt.getEncryptCipher());
 
 //        System.out.println(encryptString);
 
         awesomeClientSocket.sendByteArray(encryptString);
-
-
 
     }
 
@@ -45,7 +46,7 @@ public class TestClient {
         return rawBytes;
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
 
         TestClient client = new TestClient();
     }

@@ -25,9 +25,9 @@ public class EncryptDecryptHelper {
      * Encrypts a string to a byte[]
      * @throws IOException
      */
-    public static byte[] encryptString(String message) throws IOException {
+    public static byte[] encryptString(String message, Cipher cipher) throws IOException {
 
-        return encryptByte(message.getBytes());
+        return encryptByte(message.getBytes(), cipher);
     }
 
 
@@ -37,16 +37,12 @@ public class EncryptDecryptHelper {
      * @return null if error
      * @throws IOException
      */
-    public static byte[] encryptByte(byte[] rawBytes) throws IOException {
+    public static byte[] encryptByte(byte[] rawBytes, Cipher cipher) throws IOException {
 
         int rawBytesLength = rawBytes.length;
 //        System.out.println("Starting byte length: " + rawBytesLength);
-        Key privateKey = SecurityFileReader.readFileIntoKey(FilePaths.SERVER_PRIVATE_KEY, 0);
-
 
         try {
-            Cipher cipher = Cipher.getInstance(AuthenticationConstants.CIPHER_ALGORITHM);
-            cipher.init(Cipher.ENCRYPT_MODE, privateKey);
 
 //            byte[] latestBlock = new byte[AuthenticationConstants.ENCRYPT_BLOCK_LENGTH];
             List<byte[]> blocks = spitByteArray(rawBytes, ENCRYPT_BLOCK_LENGTH);
@@ -54,12 +50,6 @@ public class EncryptDecryptHelper {
 
             return cipherAndCombine(blocks, cipher, DECRYPT_BLOCK_LENGTH);
 
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (NoSuchPaddingException e) {
-            e.printStackTrace();
-        } catch (InvalidKeyException e) {
-            e.printStackTrace();
         } catch (BadPaddingException e) {
             e.printStackTrace();
         } catch (IllegalBlockSizeException e) {
@@ -76,14 +66,10 @@ public class EncryptDecryptHelper {
      * @return null if error decrypting
      * @throws IOException
      */
-    public static byte[] decryptBytes(byte[] rawBytes) throws IOException {
-
-
-        Key publicKey = SecurityFileReader.readFileIntoKey(FilePaths.SERVER_PUBLIC_KEY, 1);
+    public static byte[] decryptBytes(byte[] rawBytes, Cipher cipher) throws IOException {
 
         try {
-            Cipher cipher = Cipher.getInstance(AuthenticationConstants.CIPHER_ALGORITHM);
-            cipher.init(Cipher.DECRYPT_MODE, publicKey);
+
 
 
             List<byte[]> blocks = spitByteArray(rawBytes, DECRYPT_BLOCK_LENGTH);
@@ -112,12 +98,6 @@ public class EncryptDecryptHelper {
 
             return finalDecrypted;
 
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (NoSuchPaddingException e) {
-            e.printStackTrace();
-        } catch (InvalidKeyException e) {
-            e.printStackTrace();
         } catch (BadPaddingException e) {
             e.printStackTrace();
         } catch (IllegalBlockSizeException e) {
@@ -135,9 +115,9 @@ public class EncryptDecryptHelper {
      * @return null if error decrypting
      * @throws IOException
      */
-    public static String decryptMessage(byte[] message) throws IOException {
+    public static String decryptMessage(byte[] message, Cipher cipher) throws IOException {
 
-        return new String(decryptBytes(message));
+        return new String(decryptBytes(message, cipher));
 
     }
 
@@ -217,8 +197,67 @@ public class EncryptDecryptHelper {
         }
 
 //        System.out.println("Counter stopped at " + counter);
-
 //        System.out.println("Encrypted bytes length: " + finalEncrypted.length);
         return finalEncrypted;
     }
+
+    /**
+     * Helper method to get a configured encrypting cipher from a key
+     * @param key
+     * @return
+     * @throws NoSuchPaddingException
+     * @throws NoSuchAlgorithmException
+     * @throws InvalidKeyException
+     */
+    public static Cipher getEncryptCipher(Key key) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
+        Cipher encryptCipher = Cipher.getInstance(AuthenticationConstants.CIPHER_ALGORITHM);
+        encryptCipher.init(Cipher.ENCRYPT_MODE, key);
+
+        return encryptCipher;
+    }
+
+    /**
+     * Helper method to get a configured encrypting cipher from a key at path
+     * @param path location of key
+     * @return
+     * @throws InvalidKeyException
+     * @throws NoSuchPaddingException
+     * @throws NoSuchAlgorithmException
+     * @throws IOException
+     */
+    public static Cipher getEncryptCipher(String path) throws InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException, IOException {
+        Key privateKey = SecurityFileReader.readFileIntoKey(path, 0);
+        return getEncryptCipher(privateKey);
+    }
+
+    /**
+     * Helper method to get a configured decrypting cipher from a key
+     * @param key
+     * @return
+     * @throws NoSuchPaddingException
+     * @throws NoSuchAlgorithmException
+     * @throws InvalidKeyException
+     */
+    public static Cipher getDecryptCipher(Key key) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
+        Cipher cipher = Cipher.getInstance(AuthenticationConstants.CIPHER_ALGORITHM);
+        cipher.init(Cipher.DECRYPT_MODE, key);
+
+        return cipher;
+    }
+
+    /**
+     * Helper method to get a configured decrypting cipher from a key at path
+     * @param path location of key
+     * @return
+     * @throws NoSuchPaddingException
+     * @throws NoSuchAlgorithmException
+     * @throws IOException
+     * @throws InvalidKeyException
+     */
+    public static Cipher getDecryptCipher(String path) throws NoSuchPaddingException, NoSuchAlgorithmException, IOException, InvalidKeyException {
+        Key publicKey = SecurityFileReader.readFileIntoKey(path, 1);
+
+        return getDecryptCipher(publicKey);
+    }
+
 }

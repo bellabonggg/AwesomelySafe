@@ -1,11 +1,19 @@
 package Tests;
 
+import authentication.AuthenticationConstants;
 import encryption.EncryptDecryptHelper;
+import encryption.FilePaths;
+import encryption.SecurityFileReader;
 import junit.framework.TestCase;
 
+import javax.crypto.Cipher;
+import javax.crypto.NoSuchPaddingException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.Key;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
 /**
@@ -17,15 +25,44 @@ public class TestEncryptDecrypt extends TestCase {
     public static final String SMALL_FILE_PATH = "src/Keys/testFile.txt";
 
     /**
+     * Helper method to get an encrypting cipher for testing
+     * @return
+     * @throws InvalidKeyException
+     * @throws NoSuchPaddingException
+     * @throws NoSuchAlgorithmException
+     * @throws IOException
+     */
+    public static Cipher getEncryptCipher() throws InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException, IOException {
+
+        return EncryptDecryptHelper.getEncryptCipher(FilePaths.SERVER_PRIVATE_KEY);
+
+    }
+
+    /**
+     * Helper method to get a decrypting cipher for testing
+     * @return
+     * @throws NoSuchPaddingException
+     * @throws NoSuchAlgorithmException
+     * @throws IOException
+     * @throws InvalidKeyException
+     */
+    public static Cipher getDecryptCipher() throws NoSuchPaddingException, NoSuchAlgorithmException, IOException, InvalidKeyException {
+
+
+        return EncryptDecryptHelper.getDecryptCipher(FilePaths.SERVER_PUBLIC_KEY);
+    }
+
+    /**
      * Test encryption on small string
      * @throws IOException
      */
-    public void testEncryptDecryptString() throws IOException {
+    public void testEncryptDecryptString() throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
 
         String message = "Hello";
-        
-        byte[] encryptString = EncryptDecryptHelper.encryptString(message);
-        String decryptedMessage = EncryptDecryptHelper.decryptMessage(encryptString);
+
+
+        byte[] encryptString = EncryptDecryptHelper.encryptString(message, getEncryptCipher());
+        String decryptedMessage = EncryptDecryptHelper.decryptMessage(encryptString, getDecryptCipher());
 
         assertTrue(message.equals(decryptedMessage));
     }
@@ -34,7 +71,7 @@ public class TestEncryptDecrypt extends TestCase {
      * Test encryption on a small file
      * @throws IOException
      */
-    public void testEncryptDecryptSmallBytes() throws IOException {
+    public void testEncryptDecryptSmallBytes() throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
 
         testEncryptDecryptFile(SMALL_FILE_PATH);
 
@@ -44,7 +81,7 @@ public class TestEncryptDecrypt extends TestCase {
      * Test encryption on a file size > 117 bytes
      * @throws IOException
      */
-    public void testEncryptDecryptBigBytes() throws IOException {
+    public void testEncryptDecryptBigBytes() throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
 
         testEncryptDecryptFile(BIG_FILE_PATH);
 
@@ -66,6 +103,12 @@ public class TestEncryptDecrypt extends TestCase {
                     results[1] = server.getDecryptedBytes();
                 } catch (IOException e) {
                     e.printStackTrace();
+                } catch (InvalidKeyException e) {
+                    e.printStackTrace();
+                } catch (NoSuchAlgorithmException e) {
+                    e.printStackTrace();
+                } catch (NoSuchPaddingException e) {
+                    e.printStackTrace();
                 }
 
             }
@@ -79,6 +122,12 @@ public class TestEncryptDecrypt extends TestCase {
                     TestClient client = new TestClient();
                     results[0] = client.getRawBytes();
                 } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (InvalidKeyException e) {
+                    e.printStackTrace();
+                } catch (NoSuchAlgorithmException e) {
+                    e.printStackTrace();
+                } catch (NoSuchPaddingException e) {
                     e.printStackTrace();
                 }
             }
@@ -94,12 +143,14 @@ public class TestEncryptDecrypt extends TestCase {
 
     }
 
+
+
     /**
      * Helper test method for encryption of a file path
      * @param path
      * @throws IOException
      */
-    public static void testEncryptDecryptFile(String path) throws IOException {
+    public static void testEncryptDecryptFile(String path) throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
         File file = new File(path);
 
         FileInputStream fileInputStream = new FileInputStream(file);
@@ -107,9 +158,9 @@ public class TestEncryptDecrypt extends TestCase {
         byte[] rawBytes = new byte[(int) file.length()];
         fileInputStream.read(rawBytes);
 
-        byte[] encryptString = EncryptDecryptHelper.encryptByte(rawBytes);
+        byte[] encryptString = EncryptDecryptHelper.encryptByte(rawBytes, getEncryptCipher());
 
-        byte[] decryptedBytes = EncryptDecryptHelper.decryptBytes(encryptString);
+        byte[] decryptedBytes = EncryptDecryptHelper.decryptBytes(encryptString, getDecryptCipher());
 
 
 

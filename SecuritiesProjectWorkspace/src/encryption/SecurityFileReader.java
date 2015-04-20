@@ -55,6 +55,8 @@ public class SecurityFileReader {
             keySpec = new X509EncodedKeySpec(keyBytes);
         }
 
+
+
         try {
             KeyFactory keyFactory = KeyFactory.getInstance("RSA");
 
