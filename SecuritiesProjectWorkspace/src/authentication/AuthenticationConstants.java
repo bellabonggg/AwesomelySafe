@@ -18,4 +18,7 @@ public class AuthenticationConstants {
 
 
     public static String CIPHER_ALGORITHM = "RSA/ECB/PKCS1Padding";
+
+
+    public static final int ENCRYPT_BLOCK_LENGTH = 117;
 }

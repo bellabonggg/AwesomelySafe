@@ -33,7 +33,6 @@ public class SecurityFileReader {
         return dataByte;
     }
 
-
     /**
      *
      * @param path

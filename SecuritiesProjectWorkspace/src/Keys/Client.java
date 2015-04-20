@@ -1,3 +1,7 @@
+package Keys;
+
+import AwesomeSockets.AwesomeClientSocket;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -30,34 +34,15 @@ public class Client {
     private static Cipher dcipher;
 //
     private static SecretKey key;
-    private static ArrayList<byte []> byteblocks = new ArrayList<byte []>();
     private static ArrayList<byte []> encryptblocks = new ArrayList<byte []>();
+    private static ArrayList<byte []> byteblocks = new ArrayList<byte []>();
     private static int counter;
-    
+
     public static void main(String[] args) throws IOException, BadPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, CertificateException, NoSuchProviderException, SignatureException, InvalidKeySpecException {
-       
 
-        
-
-        // Create cert object
-    	CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
-    	//Read your own file
-    	InputStream inStream = new FileInputStream("C:\\Users\\Peh\\workspaceLuna\\NetworkAssignment\\src\\CA.crt.txt");
-    	X509Certificate cert = (X509Certificate)certFactory.generateCertificate(inStream);
-    	
-    	//Check cert validity
-    	cert.checkValidity();
-    	
-//    	//Initialize public key
-//    	PublicKey key = cert.getPublicKey();
-//    	
-//    	//Verify public key
-//    	cert.verify(key);
-    	
-    	
         FileInputStream fis = null;
         byte[] encodedKey = null;
-        File f = new File("C:\\Users\\Peh\\workspaceLuna\\NetworkAssignment\\src\\publicServer.der");
+        File f = new File("src/keys/publicServer.der");
         encodedKey = new byte[(int)f.length()];
 
         fis = new FileInputStream(f);
@@ -68,40 +53,45 @@ public class Client {
         PublicKey key = kf.generatePublic(new X509EncodedKeySpec(encodedKey));
     	
        // String fileName = "yourFile";
-        File filePrivateKey = new File("C:\\Users\\Peh\\workspaceLuna\\NetworkLab2\\src\\encryption.txt");
+        File file = new File("src/keys/testFile.txt");
         
-        fis = new FileInputStream("C:\\Users\\Peh\\workspaceLuna\\NetworkLab2\\src\\encryption.txt");
-        byte[] dataByte = new byte[(int) filePrivateKey.length()];
+        fis = new FileInputStream(file);
+        byte[] dataByte = new byte[(int) file.length()];
         fis.read(dataByte);
-        System.out.println(Arrays.toString(dataByte));
-        
-        
-        //Split byte array into blocks of 117 byte
-        while(counter<=dataByte.length){
-        	
-        	byte [] buffer = new byte[117];
-        	int remaining = dataByte.length-counter; 
-        	if(remaining<117){
-        		buffer= new byte[remaining];
-            	for(int i=0;i<remaining;i++){
-            		buffer[i]=dataByte[counter];
-            		counter++;
-            	}
-            	byteblocks.add(buffer);
-            	break;
-        	}
-        	
-        	for(int i=0;i<117;i++){
-        		buffer[i]=dataByte[counter];
-        		counter++;
-        	}
-        	byteblocks.add(buffer);
 
-        }
-        for(byte[] b:byteblocks){
-        	System.out.println(Arrays.toString(b));
-        }
+        System.out.println("Testfile.txt: " + Arrays.toString(dataByte));
         
+        
+//        //Split byte array into blocks of 117 byte
+//        while(counter<=dataByte.length){
+//
+//        	byte [] buffer = new byte[117];
+//        	int remaining = dataByte.length-counter;
+//        	if(remaining<117){
+//        		buffer= new byte[remaining];
+//            	for(int i=0;i<remaining;i++){
+//            		buffer[i]=dataByte[counter];
+//            		counter++;
+//            	}
+//            	byteblocks.add(buffer);
+//            	break;
+//        	}
+//
+//        	for(int i=0;i<117;i++){
+//        		buffer[i]=dataByte[counter];
+//        		counter++;
+//        	}
+//        	byteblocks.add(buffer);
+//
+//        }
+//        for(byte[] b:byteblocks){
+//        	System.out.println(Arrays.toString(b));
+//        }
+
+
+//
+        byteblocks.add(dataByte);
+
       //TODO: Create cipher object, configure it to do DES cryptography, set operation mode to encryption
         Cipher desCipher = ecipher.getInstance("RSA/ECB/PKCS1Padding");
         desCipher.init(Cipher.ENCRYPT_MODE,key);
@@ -113,24 +103,24 @@ public class Client {
         	encryptblocks.add(dataByte2);
         	}
         
-        //Create clientsocket
+        //Create client socket
         AwesomeClientSocket clientSocket = new AwesomeClientSocket("localhost", 5555);
         byte [] sendblock = new byte[128*encryptblocks.size()];
         System.out.println(sendblock.length);
         //Combine encrypted blocks
         int counter =0;
-        for(int i=0;i<encryptblocks.size();i++){
-        	for(int j=0;j<encryptblocks.get(i).length;j++){
-        		sendblock[counter]= encryptblocks.get(i)[j];
-        		counter++;
-        		System.out.println(counter);
-        	}
-        }
-        
-        System.out.println(Arrays.toString(sendblock));
-        //Send block
-        clientSocket.sendByteArray(sendblock);
 
+//        for(int i=0;i<encryptblocks.size();i++){
+//        	for(int j=0;j<encryptblocks.get(i).length;j++){
+//        		sendblock[counter]= encryptblocks.get(i)[j];
+//        		counter++;
+////        		System.out.println(counter);
+//        	}
+//        }
+        
+        System.out.println("Encrypt blocks: " + Arrays.toString(encryptblocks.get(0)));
+        //Send block
+        clientSocket.sendByteArray(encryptblocks.get(0));
 
     }
     

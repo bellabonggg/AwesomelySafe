@@ -1,3 +1,7 @@
+package Keys;
+
+import AwesomeSockets.AwesomeServerSocket;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -48,7 +52,7 @@ public class Server {
         
         FileInputStream fis = null;
         byte[] encodedKey = null;
-        File f = new File("C:\\Users\\Peh\\workspaceLuna\\NetworkAssignment\\src\\privateServer.der");
+        File f = new File("src/keys/privateServer.der");
         encodedKey = new byte[(int)f.length()];
 
         fis = new FileInputStream(f);
@@ -60,30 +64,37 @@ public class Server {
         
         
         
-        
-        // Create cert object
-    	CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
-    	//Read your own file
-    	InputStream inStream = new FileInputStream("C:\\Users\\Peh\\workspaceLuna\\NetworkAssignment\\src\\CA.crt.txt");
-    	X509Certificate cert = (X509Certificate)certFactory.generateCertificate(inStream);
-    	
-    	//Check cert validity
-    	cert.checkValidity();
-    	
-    	//Initialize public key
-    	PublicKey key = cert.getPublicKey();
-    	
-    	//Verify public key
-    	cert.verify(key);
-        
+//
+//        // Create cert object
+//    	CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
+//    	//Read your own file
+//    	InputStream inStream = new FileInputStream("C:\\Users\\Peh\\workspaceLuna\\NetworkAssignment\\src\\CA.crt.txt");
+//    	X509Certificate cert = (X509Certificate)certFactory.generateCertificate(inStream);
+//
+//    	//Check cert validity
+//    	cert.checkValidity();
+//
+//    	//Initialize public key
+//    	PublicKey key = cert.getPublicKey();
+//
+//    	//Verify public key
+//    	cert.verify(key);
+//
 
     	
-    	byte[] decryptedblock = decryptblock(readMessage,privateKey);
-    	System.out.println(new String(decryptedblock));
-    	
-    	
-    	
-    	serverSocket.closeServer();
+//    	byte[] decryptedblock = decryptblock(readMessage,privateKey);
+//    	System.out.println(new String(decryptedblock));
+
+        Cipher desCipher = ecipher.getInstance("RSA/ECB/PKCS1Padding");
+        //TODO: set the cipher object to decryption mode
+        desCipher.init(Cipher.DECRYPT_MODE, privateKey);
+
+        byte[] answer = desCipher.doFinal(readMessage);
+
+
+        System.out.println(Arrays.toString(answer));
+        serverSocket.closeServer();
+
     	
         
         

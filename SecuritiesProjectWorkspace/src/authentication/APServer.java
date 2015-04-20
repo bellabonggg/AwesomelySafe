@@ -11,7 +11,9 @@ import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by JiaHao on 19/4/15.
@@ -87,7 +89,7 @@ public class APServer {
 
 
         // send encrypted response
-        byte[] encryptedReplyToHello = encryptString(AuthenticationConstants.SERVER_REPLY_TO_HELLO);
+        byte[] encryptedReplyToHello = EncryptDecryptHelper.encryptString(AuthenticationConstants.SERVER_REPLY_TO_HELLO);
         serverSocket.sendByteArrayForClient(0, encryptedReplyToHello);
 
 
@@ -120,62 +122,7 @@ public class APServer {
 
     }
 
-    public static byte[] encryptString(String message) throws IOException {
 
-        Key privateKey = SecurityFileReader.readFileIntoKey(FilePaths.SERVER_PRIVATE_KEY, 0);
-
-        try {
-            Cipher cipher = Cipher.getInstance(AuthenticationConstants.CIPHER_ALGORITHM);
-            cipher.init(Cipher.ENCRYPT_MODE, privateKey);
-
-
-            return cipher.doFinal(message.getBytes());
-
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (NoSuchPaddingException e) {
-            e.printStackTrace();
-        } catch (InvalidKeyException e) {
-            e.printStackTrace();
-        } catch (BadPaddingException e) {
-            e.printStackTrace();
-        } catch (IllegalBlockSizeException e) {
-            e.printStackTrace();
-        }
-
-
-        return null;
-    }
-
-    public static String decryptMessage(byte[] message) throws IOException {
-
-
-        Key publicKey = SecurityFileReader.readFileIntoKey(FilePaths.SERVER_PUBLIC_KEY, 1);
-
-        try {
-            Cipher cipher = Cipher.getInstance(AuthenticationConstants.CIPHER_ALGORITHM);
-            cipher.init(Cipher.DECRYPT_MODE, publicKey);
-
-
-            byte[] decryptedBytes = cipher.doFinal(message);
-
-            return new String(decryptedBytes);
-
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (NoSuchPaddingException e) {
-            e.printStackTrace();
-        } catch (InvalidKeyException e) {
-            e.printStackTrace();
-        } catch (BadPaddingException e) {
-            e.printStackTrace();
-        } catch (IllegalBlockSizeException e) {
-            e.printStackTrace();
-        }
-
-
-        return null;
-    }
 
 
 

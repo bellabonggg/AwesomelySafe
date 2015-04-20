@@ -22,7 +22,7 @@ public class TestByteArrayClient {
 //        System.out.println(Arrays.toString(dataByte));
 //        clientSocket.sendByteArray(dataByte);
     	
-    	fgbnjk
+
 
     }
 }
