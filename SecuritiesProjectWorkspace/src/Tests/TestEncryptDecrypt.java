@@ -1,9 +1,7 @@
-package Tests;
+package tests;
 
-import authentication.AuthenticationConstants;
 import encryption.EncryptDecryptHelper;
-import encryption.FilePaths;
-import encryption.SecurityFileReader;
+import constants.FilePaths;
 import junit.framework.TestCase;
 
 import javax.crypto.Cipher;
@@ -12,7 +10,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.security.InvalidKeyException;
-import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
@@ -21,8 +18,8 @@ import java.util.Arrays;
  */
 public class TestEncryptDecrypt extends TestCase {
 
-    public static final String BIG_FILE_PATH = "src/Keys/testFileBig.txt";
-    public static final String SMALL_FILE_PATH = "src/Keys/testFile.txt";
+    public static final String BIG_FILE_PATH = "src/keys/testFileBig.txt";
+    public static final String SMALL_FILE_PATH = "src/keys/testFile.txt";
 
     /**
      * Helper method to get an encrypting cipher for testing

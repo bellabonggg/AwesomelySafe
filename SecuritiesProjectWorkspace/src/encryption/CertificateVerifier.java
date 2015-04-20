@@ -1,5 +1,7 @@
 package encryption;
 
+import constants.FilePaths;
+
 import javax.security.cert.CertificateException;
 import javax.security.cert.X509Certificate;
 import java.io.FileInputStream;

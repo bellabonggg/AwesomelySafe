@@ -1,4 +1,4 @@
-package authentication;
+package constants;
 
 /**
  * Created by JiaHao on 19/4/15.

@@ -1,7 +1,7 @@
-package Tests;
+package tests;
 
 import AwesomeSockets.AwesomeClientSocket;
-import authentication.AuthenticationConstants;
+import constants.AuthenticationConstants;
 import encryption.EncryptDecryptHelper;
 
 import javax.crypto.NoSuchPaddingException;
@@ -10,7 +10,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 
 /**
  * Created by JiaHao on 20/4/15.

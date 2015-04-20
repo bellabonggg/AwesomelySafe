@@ -1,7 +1,7 @@
-package Tests;
+package tests;
 
 import AwesomeSockets.AwesomeServerSocket;
-import authentication.AuthenticationConstants;
+import constants.AuthenticationConstants;
 import encryption.EncryptDecryptHelper;
 
 import javax.crypto.NoSuchPaddingException;

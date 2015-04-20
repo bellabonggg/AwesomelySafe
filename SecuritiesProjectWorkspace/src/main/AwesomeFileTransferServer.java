@@ -1,9 +1,10 @@
-package authentication;
+package main;
 
 
 import AwesomeSockets.AwesomeServerSocket;
+import constants.AuthenticationConstants;
 import encryption.EncryptDecryptHelper;
-import encryption.FilePaths;
+import constants.FilePaths;
 import encryption.SecurityFileReader;
 
 import javax.crypto.Cipher;
@@ -15,12 +16,12 @@ import java.security.NoSuchAlgorithmException;
 /**
  * Created by JiaHao on 19/4/15.
  */
-public class APServer {
+public class AwesomeFileTransferServer {
 
     private final AwesomeServerSocket serverSocket;
     private final Cipher encryptCipher;
 
-    public APServer() throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
+    public AwesomeFileTransferServer() throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
         this.serverSocket = new AwesomeServerSocket(AuthenticationConstants.PORT);
         this.encryptCipher = EncryptDecryptHelper.getEncryptCipher(FilePaths.SERVER_PRIVATE_KEY);
 
@@ -129,7 +130,7 @@ public class APServer {
 
     public static void main(String[] args) throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
 
-        APServer server = new APServer();
+        AwesomeFileTransferServer server = new AwesomeFileTransferServer();
         server.start();
 
     }

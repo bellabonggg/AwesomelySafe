@@ -81,7 +81,7 @@ public class SecurityFileReader {
 
     public static void main(String[] args) throws IOException {
 
-        Key myKey = readFileIntoKey("src/Keys/privateServer.der", 0);
+        Key myKey = readFileIntoKey("src/keys/privateServer.der", 0);
         System.out.println(Arrays.toString(myKey.getEncoded()));
 
     }

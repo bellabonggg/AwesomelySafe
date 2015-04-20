@@ -1,6 +1,6 @@
 package encryption;
 
-import authentication.AuthenticationConstants;
+import constants.AuthenticationConstants;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;

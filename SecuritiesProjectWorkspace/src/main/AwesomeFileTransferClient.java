@@ -1,12 +1,10 @@
-package authentication;
+package main;
 
 import AwesomeSockets.AwesomeClientSocket;
-import AwesomeSockets.AwesomeServerSocket;
-import Tests.TestEncryptDecrypt;
+import constants.AuthenticationConstants;
 import encryption.CertificateVerifier;
 import encryption.EncryptDecryptHelper;
-import encryption.FilePaths;
-import encryption.SecurityFileReader;
+import constants.FilePaths;
 
 import javax.crypto.Cipher;
 import javax.crypto.NoSuchPaddingException;
@@ -18,18 +16,17 @@ import java.io.InputStream;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
-import java.util.IllegalFormatCodePointException;
 
 /**
  * Created by JiaHao on 19/4/15.
  */
-public class APClient {
+public class AwesomeFileTransferClient {
 
     private final AwesomeClientSocket clientSocket;
 
     private byte[] serverHelloMessage;
 
-    public APClient() throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
+    public AwesomeFileTransferClient() throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
         this.clientSocket = new AwesomeClientSocket(AuthenticationConstants.SERVER_IP, AuthenticationConstants.PORT);
 
     }
@@ -135,7 +132,7 @@ public class APClient {
 
 
     public static void main(String[] args) throws InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IOException {
-        APClient client = new APClient();
+        AwesomeFileTransferClient client = new AwesomeFileTransferClient();
         client.start();
     }
 }
