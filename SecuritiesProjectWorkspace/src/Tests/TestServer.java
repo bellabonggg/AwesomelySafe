@@ -1,6 +1,8 @@
-package authentication;
+package Tests;
 
 import AwesomeSockets.AwesomeServerSocket;
+import authentication.AuthenticationConstants;
+import encryption.EncryptDecryptHelper;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -14,7 +16,7 @@ public class TestServer {
 
     public TestServer() throws IOException {
 
-        AwesomeServerSocket serverSocket = new AwesomeServerSocket(5321);
+        AwesomeServerSocket serverSocket = new AwesomeServerSocket(AuthenticationConstants.PORT);
 
         serverSocket.acceptClient();
         byte[] receivedMessage = serverSocket.readByteArrayForClient(0);

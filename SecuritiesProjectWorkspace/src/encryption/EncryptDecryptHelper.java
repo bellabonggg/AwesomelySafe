@@ -1,4 +1,6 @@
-package authentication;
+package encryption;
+
+import authentication.AuthenticationConstants;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -38,7 +40,7 @@ public class EncryptDecryptHelper {
     public static byte[] encryptByte(byte[] rawBytes) throws IOException {
 
         int rawBytesLength = rawBytes.length;
-        System.out.println("Starting byte length: " + rawBytesLength);
+//        System.out.println("Starting byte length: " + rawBytesLength);
         Key privateKey = SecurityFileReader.readFileIntoKey(FilePaths.SERVER_PRIVATE_KEY, 0);
 
 
@@ -214,9 +216,9 @@ public class EncryptDecryptHelper {
             }
         }
 
-        System.out.println("Counter stopped at " + counter);
+//        System.out.println("Counter stopped at " + counter);
 
-        System.out.println("Encrypted bytes length: " + finalEncrypted.length);
+//        System.out.println("Encrypted bytes length: " + finalEncrypted.length);
         return finalEncrypted;
     }
 }

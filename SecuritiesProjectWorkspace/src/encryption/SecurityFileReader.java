@@ -1,4 +1,4 @@
-package authentication;
+package encryption;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -17,6 +17,7 @@ public class SecurityFileReader {
 
 
     /**
+     * Read a file from a path into a byte array
      *
      * @param path sample "src/CA.crt"
      * @return
@@ -34,6 +35,7 @@ public class SecurityFileReader {
     }
 
     /**
+     * Read a file at a path into a key
      *
      * @param path
      * @param privateOrPublic 0 if private, 1 if public
@@ -73,6 +75,7 @@ public class SecurityFileReader {
 
         return null;
     }
+
 
     public static void main(String[] args) throws IOException {
 

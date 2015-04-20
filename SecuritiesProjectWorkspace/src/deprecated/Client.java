@@ -1,4 +1,4 @@
-package Keys;
+package deprecated;
 
 import AwesomeSockets.AwesomeClientSocket;
 

@@ -1,6 +1,8 @@
-package authentication;
+package Tests;
 
 import AwesomeSockets.AwesomeClientSocket;
+import authentication.AuthenticationConstants;
+import encryption.EncryptDecryptHelper;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -16,22 +18,22 @@ public class TestClient {
 
     public TestClient() throws IOException {
 
-        AwesomeClientSocket awesomeClientSocket = new AwesomeClientSocket("127.0.0.1", 5321);
+        AwesomeClientSocket awesomeClientSocket = new AwesomeClientSocket(AuthenticationConstants.SERVER_IP, AuthenticationConstants.PORT);
 
 
 
 
-        File file = new File("src/Keys/testFileBig.txt");
+        File file = new File(TestEncryptDecrypt.BIG_FILE_PATH);
 
         FileInputStream fileInputStream = new FileInputStream(file);
 
         this.rawBytes = new byte[(int) file.length()];
         fileInputStream.read(rawBytes);
 
-        System.out.println(Arrays.toString(rawBytes));
+//        System.out.println(Arrays.toString(rawBytes));
         byte[] encryptString = EncryptDecryptHelper.encryptByte(rawBytes);
 
-        System.out.println(encryptString);
+//        System.out.println(encryptString);
 
         awesomeClientSocket.sendByteArray(encryptString);
 

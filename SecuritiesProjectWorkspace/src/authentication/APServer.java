@@ -2,18 +2,9 @@ package authentication;
 
 
 import AwesomeSockets.AwesomeServerSocket;
+import encryption.EncryptDecryptHelper;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 import java.io.IOException;
-import java.security.InvalidKeyException;
-import java.security.Key;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Created by JiaHao on 19/4/15.

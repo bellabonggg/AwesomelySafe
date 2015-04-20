@@ -1,10 +1,10 @@
-package authentication;
+package Tests;
 
+import encryption.EncryptDecryptHelper;
 import junit.framework.TestCase;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -13,6 +13,9 @@ import java.util.Arrays;
  */
 public class TestEncryptDecrypt extends TestCase {
 
+    public static final String BIG_FILE_PATH = "src/Keys/testFileBig.txt";
+    public static final String SMALL_FILE_PATH = "src/Keys/testFile.txt";
+
     /**
      * Test encryption on small string
      * @throws IOException
@@ -20,15 +23,10 @@ public class TestEncryptDecrypt extends TestCase {
     public void testEncryptDecryptString() throws IOException {
 
         String message = "Hello";
-
-
+        
         byte[] encryptString = EncryptDecryptHelper.encryptString(message);
-        System.out.println(Arrays.toString(message.getBytes()));
-
-
         String decryptedMessage = EncryptDecryptHelper.decryptMessage(encryptString);
 
-        System.out.println(Arrays.toString(decryptedMessage.getBytes()));
         assertTrue(message.equals(decryptedMessage));
     }
 
@@ -38,8 +36,7 @@ public class TestEncryptDecrypt extends TestCase {
      */
     public void testEncryptDecryptSmallBytes() throws IOException {
 
-
-        testEncryptDecryptFile("src/Keys/testFile.txt");
+        testEncryptDecryptFile(SMALL_FILE_PATH);
 
     }
 
@@ -49,7 +46,7 @@ public class TestEncryptDecrypt extends TestCase {
      */
     public void testEncryptDecryptBigBytes() throws IOException {
 
-        testEncryptDecryptFile("src/Keys/testFileBig.txt");
+        testEncryptDecryptFile(BIG_FILE_PATH);
 
     }
 
@@ -114,8 +111,8 @@ public class TestEncryptDecrypt extends TestCase {
 
         byte[] decryptedBytes = EncryptDecryptHelper.decryptBytes(encryptString);
 
-        String decryptString = EncryptDecryptHelper.decryptMessage(encryptString);
-        System.out.println(decryptString);
+
+
         assertTrue(Arrays.equals(rawBytes, decryptedBytes));
 
 
