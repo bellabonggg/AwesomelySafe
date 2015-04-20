@@ -37,14 +37,17 @@ public class APClient {
 
     public void start() throws IOException {
         authenticationProtocol();
-
+        confidentialityProtocol();
     }
 
     public void authenticationProtocol() throws IOException {
+        System.out.println("=== AUTHENTICATION PROTOCOL ===");
+
+        //todo error catching
         try {
             sendHelloToServer();
             askServerForCertificate();
-            sendToServerSymmetricKey();
+
         } catch (IOException e) {
             e.printStackTrace();
         } catch (IllegalAccessException e) {
@@ -60,6 +63,16 @@ public class APClient {
             e.printStackTrace();
         }
 
+
+    }
+
+    private void confidentialityProtocol() {
+        System.out.println("=== CONFIDENTIALITY PROTOCOL ===");
+        //todo by pablo
+
+        sendToServerSymmetricKey();
+
+        //etc
 
     }
 
@@ -101,16 +114,15 @@ public class APClient {
 
             String serverDecryptedMessage = EncryptDecryptHelper.decryptMessage(this.serverHelloMessage, decryptCipher);
 
-            System.out.println(serverDecryptedMessage);
+            // assumes the client knows what the servers hello message is?
             if (!serverDecryptedMessage.equals(AuthenticationConstants.SERVER_REPLY_TO_HELLO)) {
                 throw new IllegalAccessException("Cannot verify server hello message!");
             }
-
         }
     }
     private void sendToServerSymmetricKey() {
         System.out.println("Sending symmetric key to server");
-        // todo symmetric key generation
+        // todo symmetric key generation by pablo
     }
 
 

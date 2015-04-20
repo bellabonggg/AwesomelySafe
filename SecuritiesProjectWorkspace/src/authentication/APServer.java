@@ -20,44 +20,50 @@ public class APServer {
     private final AwesomeServerSocket serverSocket;
     private final Cipher encryptCipher;
 
-
-
-
     public APServer() throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
         this.serverSocket = new AwesomeServerSocket(AuthenticationConstants.PORT);
-
-
         this.encryptCipher = EncryptDecryptHelper.getEncryptCipher(FilePaths.SERVER_PRIVATE_KEY);
-
 
     }
 
 
     public void start() throws IOException {
+        this.serverSocket.acceptClient();
+
         authenticationProtocol();
+        confidentialityProtocol();
 
     }
 
     public void authenticationProtocol() {
+        System.out.println("=== AUTHENTICATION PROTOCOL ===");
+        // todo error catching
+
         try {
-            acceptClient();
             waitForClientToSayHello();
             waitForClientToAskForCertificate();
-            waitForClientToSendSymmetricKey();
-            waitForClientToSendFile();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-
     }
 
-    private void acceptClient() throws IOException {
+    public void confidentialityProtocol() {
+        System.out.println("=== CONFIDENTIALITY PROTOCOL ===");
 
-        this.serverSocket.acceptClient();
+        // todo by Pablo
 
+        try {
+            waitForClientToSendSymmetricKey();
+            waitForClientToSendFile();
 
+            // etc
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
+
 
     private void waitForClientToSayHello() throws IOException {
         System.out.println("Waiting for client to say hello...");
@@ -107,6 +113,7 @@ public class APServer {
 
 
     private void waitForClientToSendSymmetricKey() throws IOException {
+        // todo by pablo
         System.out.println("Waiting for client to send symmetric key...");
         // wait for client to sent symmetric key
         byte[] receivedEncryptedSymmetricKey = this.serverSocket.readByteArrayForClient(0);
@@ -114,6 +121,9 @@ public class APServer {
     }
 
     private void waitForClientToSendFile() {
+
+        // todo by pablo
+
         System.out.println("Waiting for client to send file...");
     }
 
