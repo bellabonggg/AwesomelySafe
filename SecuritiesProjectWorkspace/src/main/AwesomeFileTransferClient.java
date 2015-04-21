@@ -4,12 +4,16 @@ import AwesomeSockets.AwesomeClientSocket;
 import constants.AuthenticationConstants;
 import encryption.CertificateVerifier;
 import encryption.EncryptDecryptHelper;
+import encryption.SecurityFileReader;
 import constants.FilePaths;
 
 import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
 import javax.security.cert.CertificateException;
 import javax.security.cert.X509Certificate;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,16 +27,16 @@ import java.security.NoSuchAlgorithmException;
 public class AwesomeFileTransferClient {
 
     private final AwesomeClientSocket clientSocket;
-
+    private Cipher encryptCipher;
     private byte[] serverHelloMessage;
-
+    private SecretKey key;
     public AwesomeFileTransferClient() throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
         this.clientSocket = new AwesomeClientSocket(AuthenticationConstants.SERVER_IP, AuthenticationConstants.PORT);
-
+        
     }
 
 
-    public void start() throws IOException {
+    public void start() throws IOException, NoSuchAlgorithmException, InvalidKeyException, NoSuchPaddingException {
         authenticationProtocol();
         confidentialityProtocol();
     }
@@ -63,13 +67,13 @@ public class AwesomeFileTransferClient {
 
     }
 
-    private void confidentialityProtocol() {
+    private void confidentialityProtocol() throws NoSuchAlgorithmException, IOException, InvalidKeyException, NoSuchPaddingException {
         System.out.println("=== CONFIDENTIALITY PROTOCOL ===");
         //todo by pablo
 
         sendToServerSymmetricKey();
-
-        //etc
+        sendToServerFileUpload();
+        
 
     }
 
@@ -107,7 +111,7 @@ public class AwesomeFileTransferClient {
             Key serverPublicKey = serverCert.getPublicKey();
 
             Cipher decryptCipher = EncryptDecryptHelper.getDecryptCipher(serverPublicKey);
-
+            encryptCipher = EncryptDecryptHelper.getEncryptCipher(serverPublicKey);
 
             String serverDecryptedMessage = EncryptDecryptHelper.decryptMessage(this.serverHelloMessage, decryptCipher);
 
@@ -117,12 +121,29 @@ public class AwesomeFileTransferClient {
             }
         }
     }
-    private void sendToServerSymmetricKey() {
+    private void sendToServerSymmetricKey() throws NoSuchAlgorithmException, IOException {
         System.out.println("Sending symmetric key to server");
-        // todo symmetric key generation by pablo
+        this.key = KeyGenerator.getInstance("DES").generateKey();
+        byte[] data = key.getEncoded();
+        byte [] encryptedKey = encryptSymmetricKey(data);
+        clientSocket.sendByteArray(encryptedKey);
+        
+    }
+    private byte[] encryptSymmetricKey(byte[] key) throws IOException{
+    	byte[] encryptedKey = EncryptDecryptHelper.encryptByte(key, encryptCipher);
+    	return encryptedKey;
     }
 
-
+    private void sendToServerFileUpload() throws IOException, InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException {
+    	//read file, change filepath
+    	byte [] rawFile = SecurityFileReader.readFileIntoByteArray("src\\keys\\testFileBig");
+    	//encrypt file with symmetrickey
+    	Cipher secretEncryptCipher = EncryptDecryptHelper.getEncryptCipher(this.key);
+    	byte [] encryptedFile = EncryptDecryptHelper.encryptByte(rawFile, secretEncryptCipher);
+    	//send to server
+    	this.clientSocket.sendByteArray(encryptedFile);
+    }
+    
     private void closeClient() throws IOException {
 
         this.clientSocket.sendMessageLine(AuthenticationConstants.BYE);
