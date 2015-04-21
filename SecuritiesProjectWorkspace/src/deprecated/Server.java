@@ -95,13 +95,6 @@ public class Server {
         System.out.println(Arrays.toString(answer));
         serverSocket.closeServer();
 
-    	
-        
-        
-
-        
-        
-
     }
     
     public static byte[] decryptblock(byte [] dataByte,PrivateKey key) throws IllegalBlockSizeException, BadPaddingException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException{

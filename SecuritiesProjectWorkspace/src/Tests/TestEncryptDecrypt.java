@@ -159,8 +159,6 @@ public class TestEncryptDecrypt extends TestCase {
 
         byte[] decryptedBytes = EncryptDecryptHelper.decryptBytes(encryptString, getDecryptCipher());
 
-
-
         assertTrue(Arrays.equals(rawBytes, decryptedBytes));
 
 

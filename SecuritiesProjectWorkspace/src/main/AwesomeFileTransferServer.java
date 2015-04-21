@@ -24,16 +24,13 @@ public class AwesomeFileTransferServer {
     public AwesomeFileTransferServer() throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
         this.serverSocket = new AwesomeServerSocket(AuthenticationConstants.PORT);
         this.encryptCipher = EncryptDecryptHelper.getEncryptCipher(FilePaths.SERVER_PRIVATE_KEY);
-
     }
-
 
     public void start() throws IOException {
         this.serverSocket.acceptClient();
 
         authenticationProtocol();
         confidentialityProtocol();
-
     }
 
     public void authenticationProtocol() {
@@ -46,7 +43,6 @@ public class AwesomeFileTransferServer {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
     public void confidentialityProtocol() {
@@ -79,7 +75,6 @@ public class AwesomeFileTransferServer {
                 clientSaidHello = true;
             }
         }
-
 
         // todo nonce
         // todo bye

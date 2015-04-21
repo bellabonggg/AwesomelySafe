@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -258,6 +259,12 @@ public class EncryptDecryptHelper {
         Key publicKey = SecurityFileReader.readFileIntoKey(path, 1);
 
         return getDecryptCipher(publicKey);
+    }
+
+
+    public static int getNonce() {
+        SecureRandom random = new SecureRandom();
+        return random.nextInt();
     }
 
 }
