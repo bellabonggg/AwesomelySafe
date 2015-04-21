@@ -210,8 +210,8 @@ public class EncryptDecryptHelper {
      * @throws NoSuchAlgorithmException
      * @throws InvalidKeyException
      */
-    public static Cipher getEncryptCipher(Key key) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
-        Cipher encryptCipher = Cipher.getInstance(AuthenticationConstants.CIPHER_ALGORITHM);
+    public static Cipher getEncryptCipher(Key key, String algorithm) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
+        Cipher encryptCipher = Cipher.getInstance(algorithm);
         encryptCipher.init(Cipher.ENCRYPT_MODE, key);
 
         return encryptCipher;
@@ -226,9 +226,9 @@ public class EncryptDecryptHelper {
      * @throws NoSuchAlgorithmException
      * @throws IOException
      */
-    public static Cipher getEncryptCipher(String path) throws InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException, IOException {
-        Key privateKey = SecurityFileReader.readFileIntoKey(path, 0);
-        return getEncryptCipher(privateKey);
+    public static Cipher getEncryptCipher(String path, String algorithm, int privateOrPublic) throws InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException, IOException {
+        Key privateKey = SecurityFileReader.readFileIntoKey(path, privateOrPublic);
+        return getEncryptCipher(privateKey, algorithm);
     }
 
     /**
@@ -239,8 +239,8 @@ public class EncryptDecryptHelper {
      * @throws NoSuchAlgorithmException
      * @throws InvalidKeyException
      */
-    public static Cipher getDecryptCipher(Key key) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
-        Cipher cipher = Cipher.getInstance(AuthenticationConstants.CIPHER_ALGORITHM);
+    public static Cipher getDecryptCipher(Key key, String algorithm) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
+        Cipher cipher = Cipher.getInstance(algorithm);
         cipher.init(Cipher.DECRYPT_MODE, key);
 
         return cipher;
@@ -255,10 +255,10 @@ public class EncryptDecryptHelper {
      * @throws IOException
      * @throws InvalidKeyException
      */
-    public static Cipher getDecryptCipher(String path) throws NoSuchPaddingException, NoSuchAlgorithmException, IOException, InvalidKeyException {
-        Key publicKey = SecurityFileReader.readFileIntoKey(path, 1);
+    public static Cipher getDecryptCipher(String path, String algorithm, int privateOrPublic) throws NoSuchPaddingException, NoSuchAlgorithmException, IOException, InvalidKeyException {
+        Key publicKey = SecurityFileReader.readFileIntoKey(path, privateOrPublic);
 
-        return getDecryptCipher(publicKey);
+        return getDecryptCipher(publicKey, algorithm);
     }
 
 

@@ -6,6 +6,7 @@ import encryption.CertificateVerifier;
 import encryption.EncryptDecryptHelper;
 import encryption.SecurityFileReader;
 import constants.FilePaths;
+import tests.TestEncryptDecrypt;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
@@ -110,8 +111,8 @@ public class AwesomeFileTransferClient {
 
             Key serverPublicKey = serverCert.getPublicKey();
 
-            Cipher decryptCipher = EncryptDecryptHelper.getDecryptCipher(serverPublicKey);
-            encryptCipher = EncryptDecryptHelper.getEncryptCipher(serverPublicKey);
+            Cipher decryptCipher = EncryptDecryptHelper.getDecryptCipher(serverPublicKey, AuthenticationConstants.ALGORITHM_RSA);
+            encryptCipher = EncryptDecryptHelper.getEncryptCipher(serverPublicKey, AuthenticationConstants.ALGORITHM_RSA);
 
             String serverDecryptedMessage = EncryptDecryptHelper.decryptMessage(this.serverHelloMessage, decryptCipher);
 
@@ -136,9 +137,9 @@ public class AwesomeFileTransferClient {
 
     private void sendToServerFileUpload() throws IOException, InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException {
     	//read file, change filepath
-    	byte [] rawFile = SecurityFileReader.readFileIntoByteArray("src\\keys\\testFileBig");
+    	byte [] rawFile = SecurityFileReader.readFileIntoByteArray(TestEncryptDecrypt.BIG_FILE_PATH);
     	//encrypt file with symmetrickey
-    	Cipher secretEncryptCipher = EncryptDecryptHelper.getEncryptCipher(this.key);
+    	Cipher secretEncryptCipher = EncryptDecryptHelper.getEncryptCipher(this.key, AuthenticationConstants.ALGORITHM_DES);
     	byte [] encryptedFile = EncryptDecryptHelper.encryptByte(rawFile, secretEncryptCipher);
     	//send to server
     	this.clientSocket.sendByteArray(encryptedFile);

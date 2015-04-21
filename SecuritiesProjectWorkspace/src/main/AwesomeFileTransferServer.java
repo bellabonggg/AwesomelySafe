@@ -3,7 +3,9 @@ package main;
 
 import java.io.IOException;
 import java.security.InvalidKeyException;
+import java.security.Key;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
@@ -25,19 +27,17 @@ public class AwesomeFileTransferServer {
     private final AwesomeServerSocket serverSocket;
     private final Cipher encryptCipher;
     private final Cipher  decryptCipher;
-    private final Cipher symmetricCipher;
-    private SecretKey key2;
+    private Cipher symmetricCipher;
     
 
     public AwesomeFileTransferServer() throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
         this.serverSocket = new AwesomeServerSocket(AuthenticationConstants.PORT);
-        this.encryptCipher = EncryptDecryptHelper.getEncryptCipher(FilePaths.SERVER_PRIVATE_KEY);
-<<<<<<< HEAD
-=======
-        this.decryptCipher = EncryptDecryptHelper.getDecryptCipher(FilePaths.SERVER_PRIVATE_KEY);
-        this.symmetricCipher = Cipher.getInstance("DES/ECB/PKCS5Padding");
+        this.encryptCipher = EncryptDecryptHelper.getEncryptCipher(FilePaths.SERVER_PRIVATE_KEY, AuthenticationConstants.ALGORITHM_RSA, 0);
 
->>>>>>> 784f5083f3f0c4d43bc905bcf0c8fbf6af3f805e
+        this.decryptCipher = EncryptDecryptHelper.getDecryptCipher(FilePaths.SERVER_PRIVATE_KEY, AuthenticationConstants.ALGORITHM_RSA, 0);
+
+//        this.symmetricCipher = Cipher.getInstance(AuthenticationConstants.ALGORITHM_DES);
+
     }
 
     public void start() throws IOException {
@@ -71,6 +71,12 @@ public class AwesomeFileTransferServer {
             // etc
 
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InvalidKeyException e) {
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (NoSuchPaddingException e) {
             e.printStackTrace();
         }
     }
@@ -122,21 +128,25 @@ public class AwesomeFileTransferServer {
     }
 
 
-    private void waitForClientToSendSymmetricKey() throws IOException{
+    private void waitForClientToSendSymmetricKey() throws IOException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException {
 
         System.out.println("Waiting for client to send symmetric key...");
         // wait for client to sent symmetric key
         byte[] receivedEncryptedSymmetricKey = this.serverSocket.readByteArrayForClient(0);
         byte[] receivedDecryptedSymmetricKey = EncryptDecryptHelper.decryptBytes(receivedEncryptedSymmetricKey, this.decryptCipher);
-        key2 = new SecretKeySpec(receivedDecryptedSymmetricKey, 0, receivedDecryptedSymmetricKey.length, "DES");
+        Key symmetricKey = new SecretKeySpec(receivedDecryptedSymmetricKey, 0, receivedDecryptedSymmetricKey.length, "DES");
 
+//        this.symmetricCipher.init(Cipher.DECRYPT_MODE, key2);
+
+        this.symmetricCipher = EncryptDecryptHelper.getDecryptCipher(symmetricKey, AuthenticationConstants.ALGORITHM_DES);
     }
 
     private void waitForClientToSendFile() throws IOException {
     	System.out.println("Waiting for client to send file...");
     	byte [] finalRawData =  this.serverSocket.readByteArrayForClient(0);
     	byte [] finalDecryptedData = EncryptDecryptHelper.decryptBytes(finalRawData,symmetricCipher);
-    
+
+        System.out.println("Final decrypted: " + Arrays.toString(finalDecryptedData));
     }
 
     public static void main(String[] args) throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {

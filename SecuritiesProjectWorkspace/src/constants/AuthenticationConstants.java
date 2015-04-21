@@ -17,7 +17,8 @@ public class AuthenticationConstants {
     public static final String SERVER_IP = "127.0.0.1";
 
 
-    public static final String CIPHER_ALGORITHM = "RSA/ECB/PKCS1Padding";
+    public static final String ALGORITHM_RSA = "RSA/ECB/PKCS1Padding";
+    public static final String ALGORITHM_DES = "DES/ECB/PKCS5Padding";
 
 
 }
