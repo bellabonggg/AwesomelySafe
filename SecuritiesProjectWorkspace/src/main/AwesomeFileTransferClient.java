@@ -24,16 +24,23 @@ import java.util.Arrays;
 public class AwesomeFileTransferClient {
 
     private final AwesomeClientSocket clientSocket;
+    private final String pathOfFileToSend;
+    private final int fileTransferProtocol;
+
     private Cipher encryptCipher;
     private byte[] serverHelloMessage;
     private SecretKey key;
     private byte[] helloNonce;
     private byte[] askForCertNonce;
 
-    public AwesomeFileTransferClient() throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
+    private byte[] fileToSend;
+
+    public AwesomeFileTransferClient(String pathOfFileToSend, int fileTransferProtocol) throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
         this.clientSocket = new AwesomeClientSocket(AuthenticationConstants.SERVER_IP, AuthenticationConstants.PORT);
-        
+        this.pathOfFileToSend = pathOfFileToSend;
+        this.fileTransferProtocol = fileTransferProtocol;
     }
+
 
 
     public void start() throws IOException, NoSuchAlgorithmException, InvalidKeyException, NoSuchPaddingException, BadPaddingException, IllegalBlockSizeException {
@@ -69,11 +76,19 @@ public class AwesomeFileTransferClient {
 
     private void confidentialityProtocol() throws NoSuchAlgorithmException, IOException, InvalidKeyException, NoSuchPaddingException, BadPaddingException, IllegalBlockSizeException {
         System.out.println("=== CONFIDENTIALITY PROTOCOL ===");
-        //todo by pablo
 
-        sendToServerSymmetricKey();
-        sendToServerFileUpload();
-        
+        if (fileTransferProtocol == 0) {
+
+            // DES
+
+            sendToServerSymmetricKey();
+            sendToServerFileUpload();
+
+        } else {
+
+            // TODO RSA
+
+        }
 
     }
 
@@ -182,11 +197,12 @@ public class AwesomeFileTransferClient {
 
     private void sendToServerFileUpload() throws IOException, InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException, BadPaddingException, IllegalBlockSizeException {
     	//read file, change filepath
-    	byte [] rawFile = SecurityFileReader.readFileIntoByteArray(TestEncryptDecrypt.BIG_FILE_PATH);
-    	System.out.println("Raw file: "+Arrays.toString(rawFile));
+    	this.fileToSend = SecurityFileReader.readFileIntoByteArray(this.pathOfFileToSend);
+
+
     	//encrypt file with symmetrickey
     	Cipher secretEncryptCipher = EncryptDecryptHelper.getEncryptCipher(this.key, AuthenticationConstants.ALGORITHM_DES);
-    	byte [] encryptedFile = secretEncryptCipher.doFinal(rawFile);
+    	byte [] encryptedFile = secretEncryptCipher.doFinal(this.fileToSend);
     	//send to server
     	this.clientSocket.sendByteArray(encryptedFile);
     }
@@ -198,8 +214,13 @@ public class AwesomeFileTransferClient {
 
     }
 
+    public byte[] getFileToSend() {
+        return fileToSend;
+    }
+
     public static void main(String[] args) throws InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IOException, BadPaddingException, IllegalBlockSizeException {
-        AwesomeFileTransferClient client = new AwesomeFileTransferClient();
+        AwesomeFileTransferClient client = new AwesomeFileTransferClient(TestEncryptDecrypt.BIG_FILE_PATH, 0);
         client.start();
+        System.out.println("File to send: " + Arrays.toString(client.getFileToSend()));
     }
 }

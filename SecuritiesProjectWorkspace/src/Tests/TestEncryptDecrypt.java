@@ -4,10 +4,10 @@ import constants.AuthenticationConstants;
 import encryption.EncryptDecryptHelper;
 import constants.FilePaths;
 import junit.framework.TestCase;
+import main.AwesomeFileTransferClient;
+import main.AwesomeFileTransferServer;
 
-import javax.crypto.Cipher;
-import javax.crypto.KeyGenerator;
-import javax.crypto.NoSuchPaddingException;
+import javax.crypto.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -22,8 +22,10 @@ import java.util.Arrays;
  */
 public class TestEncryptDecrypt extends TestCase {
 
-    public static final String BIG_FILE_PATH = "src/keys/testFileBig.txt";
-    public static final String SMALL_FILE_PATH = "src/keys/testFile.txt";
+    public static final String BIG_FILE_PATH = "src/tests/test_files/testFileBig.txt";
+    public static final String SMALL_FILE_PATH = "src/tests/test_files/testFile.txt";
+
+    public static final String BIG_IMAGE_PATH = "src/tests/test_files/bigImage.jpg";
 
     /**
      * Helper method to get an encrypting cipher for testing
@@ -169,8 +171,6 @@ public class TestEncryptDecrypt extends TestCase {
 
     }
 
-
-
     /**
      * Helper test method for encryption of a file path
      * @param path
@@ -190,6 +190,71 @@ public class TestEncryptDecrypt extends TestCase {
 
         assertTrue(Arrays.equals(rawBytes, decryptedBytes));
 
+    }
+
+    /**
+     * Tests the file transfer protocol
+     * @throws InterruptedException
+     */
+    public void testFileTransferProtocol() throws InterruptedException {
+
+        final byte[][] results = new byte[2][];
+
+        Thread serverThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    AwesomeFileTransferServer server = new AwesomeFileTransferServer(0);
+                    server.start();
+                    results[1] = server.getReceivedFile();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (InvalidKeyException e) {
+                    e.printStackTrace();
+                } catch (NoSuchAlgorithmException e) {
+                    e.printStackTrace();
+                } catch (NoSuchPaddingException e) {
+                    e.printStackTrace();
+                } catch (IllegalBlockSizeException e) {
+                    e.printStackTrace();
+                } catch (BadPaddingException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        });
+
+
+        Thread clientThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    AwesomeFileTransferClient client = new AwesomeFileTransferClient(BIG_IMAGE_PATH, 0);
+                    client.start();
+                    results[0] = client.getFileToSend();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (InvalidKeyException e) {
+                    e.printStackTrace();
+                } catch (NoSuchAlgorithmException e) {
+                    e.printStackTrace();
+                } catch (NoSuchPaddingException e) {
+                    e.printStackTrace();
+                } catch (IllegalBlockSizeException e) {
+                    e.printStackTrace();
+                } catch (BadPaddingException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        serverThread.start();
+        clientThread.start();
+
+        serverThread.join();
+        clientThread.join();
+
+        assertTrue(Arrays.equals(results[0], results[1]));
 
     }
 

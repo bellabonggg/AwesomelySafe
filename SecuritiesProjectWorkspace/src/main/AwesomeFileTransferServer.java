@@ -25,15 +25,20 @@ public class AwesomeFileTransferServer {
     private final AwesomeServerSocket serverSocket;
     private final Cipher encryptCipher;
     private final Cipher  decryptCipher;
-    private Cipher symmetricCipher;
-    
 
-    public AwesomeFileTransferServer() throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
+    private final int fileTransferProtocol;
+
+    private Cipher symmetricCipher;
+
+    private byte[] receivedFile;
+
+    public AwesomeFileTransferServer(int fileTransferProtocol) throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
         this.serverSocket = new AwesomeServerSocket(AuthenticationConstants.PORT);
         this.encryptCipher = EncryptDecryptHelper.getEncryptCipher(FilePaths.SERVER_PRIVATE_KEY, AuthenticationConstants.ALGORITHM_RSA, 0);
 
         this.decryptCipher = EncryptDecryptHelper.getDecryptCipher(FilePaths.SERVER_PRIVATE_KEY, AuthenticationConstants.ALGORITHM_RSA, 0);
 
+        this.fileTransferProtocol = fileTransferProtocol;
     }
 
     public void start() throws IOException, BadPaddingException, IllegalBlockSizeException {
@@ -60,21 +65,31 @@ public class AwesomeFileTransferServer {
     public void confidentialityProtocol() throws BadPaddingException, IllegalBlockSizeException {
         System.out.println("=== CONFIDENTIALITY PROTOCOL ===");
 
-        try {
-            waitForClientToSendSymmetricKey();
-            waitForClientToSendFile();
-            
-            // etc
+        if (fileTransferProtocol == 0) {
+            // DES
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InvalidKeyException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (NoSuchPaddingException e) {
-            e.printStackTrace();
+            try {
+                waitForClientToSendSymmetricKey();
+                waitForClientToSendFile();
+
+                // etc
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (InvalidKeyException e) {
+                e.printStackTrace();
+            } catch (NoSuchAlgorithmException e) {
+                e.printStackTrace();
+            } catch (NoSuchPaddingException e) {
+                e.printStackTrace();
+            }
+
+        } else {
+
+            // RSA
         }
+
+
     }
 
 
@@ -141,14 +156,20 @@ public class AwesomeFileTransferServer {
     	byte [] finalRawData =  this.serverSocket.readByteArrayForClient(0);
     	byte [] finalDecryptedData = symmetricCipher.doFinal(finalRawData);
 
-        System.out.println("Final decrypted: " + Arrays.toString(finalDecryptedData));
+
+        this.receivedFile = finalDecryptedData;
+    }
+
+    public byte[] getReceivedFile() {
+        return receivedFile;
     }
 
     public static void main(String[] args) throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
 
-        AwesomeFileTransferServer server = new AwesomeFileTransferServer();
+        AwesomeFileTransferServer server = new AwesomeFileTransferServer(0);
         server.start();
 
+        System.out.println("Received file: " + Arrays.toString(server.getReceivedFile()));
     }
 
 }
