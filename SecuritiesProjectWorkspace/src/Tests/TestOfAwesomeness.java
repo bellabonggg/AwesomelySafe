@@ -20,7 +20,7 @@ import java.util.Arrays;
 /**
  * Created by JiaHao on 19/4/15.
  */
-public class TestEncryptDecrypt extends TestCase {
+public class TestOfAwesomeness extends TestCase {
 
     public static final String BIG_FILE_PATH = "src/tests/test_files/testFileBig.txt";
     public static final String SMALL_FILE_PATH = "src/tests/test_files/testFile.txt";

@@ -25,7 +25,7 @@ public class TestClient {
 
 
 
-        File file = new File(TestEncryptDecrypt.BIG_FILE_PATH);
+        File file = new File(TestOfAwesomeness.BIG_FILE_PATH);
 
         FileInputStream fileInputStream = new FileInputStream(file);
 
@@ -33,7 +33,7 @@ public class TestClient {
         fileInputStream.read(rawBytes);
 
 //        System.out.println(Arrays.toString(rawBytes));
-        byte[] encryptString = EncryptDecryptHelper.encryptByte(rawBytes, TestEncryptDecrypt.getEncryptCipher());
+        byte[] encryptString = EncryptDecryptHelper.encryptByte(rawBytes, TestOfAwesomeness.getEncryptCipher());
 
 //        System.out.println(encryptString);
 

@@ -97,6 +97,7 @@ public class AwesomeFileTransferServer {
         System.out.println("Waiting for client to say hello...");
         String errorMessage = "Client sent unknown hello message";
 
+//        messageToSend = privateKey(nonce + serverReplyToHello)
         dealWithMessage(AuthenticationConstants.CLIENT_HELLO_MESSAGE, AuthenticationConstants.SERVER_REPLY_TO_HELLO.getBytes(), errorMessage, true);
 
     }
@@ -108,29 +109,53 @@ public class AwesomeFileTransferServer {
         String errorMessage = "Client sent unknown ask for certificate message";
         byte[] serverCert = SecurityFileReader.readFileIntoByteArray(FilePaths.SERVER_CERTIFICATE);
 
+//        messageToSend = privateKey(nonce) + serverCert
         dealWithMessage(AuthenticationConstants.CLIENT_ASK_FOR_CERT, serverCert, errorMessage, false);
 
     }
 
-    private void dealWithMessage(String stringCheck, byte[] replyMessage, String errorMessage, boolean encryptResponse) throws IllegalAccessException, IOException {
+    /**
+     * Helper method to avoid repeating code
+     *
+     * If encryptNonceResponseOnly, messageToSend = privateKey(receivedNonce + replyMessage)
+     * else: messageToSend = privateKey(receivedNonce) + replyMessage
+     *
+     * @param stringCheck Compare received message with expected message
+     * @param replyMessage is always unencrypted
+     * @param errorMessage exception to throw if it fails
+     * @param encryptNonceResponseOnly
+     * @throws IllegalAccessException
+     * @throws IOException
+     */
+    private void dealWithMessage(String stringCheck, byte[] replyMessage, String errorMessage, boolean encryptNonceResponseOnly) throws IllegalAccessException, IOException {
 
-        byte[] receivedClientHelloWithNonce = this.serverSocket.readByteArrayForClient(0);
-        byte[][] splitClientHelloWithNonce = ByteArrayHelper.splitMessage(receivedClientHelloWithNonce, NonceHelper.NONCE_LENGTH);
+        // Gets the message from the client
+        byte[] receivedMessagewithNonce = this.serverSocket.readByteArrayForClient(0);
 
-        byte[] clientHelloNonce = splitClientHelloWithNonce[0];
-        String clientHelloMessage = new String(splitClientHelloWithNonce[1]);
+        // split it into nonce (nonce received is always unencrypted)
+        byte[][] splitMessage = ByteArrayHelper.splitMessage(receivedMessagewithNonce, NonceHelper.NONCE_LENGTH);
 
-        if (!clientHelloMessage.equals(stringCheck)) {
+        byte[] receivedNonce = splitMessage[0];
+        String messageString = new String(splitMessage[1]);
+
+        // do a check to see if the message is expected
+        if (!messageString.equals(stringCheck)) {
             throw new IllegalAccessException(errorMessage);
         }
 
-        byte[] messageToSend;
-        if (encryptResponse) {
 
-            byte[] nonceWithReplyMessage = ByteArrayHelper.concatenateBytes(clientHelloNonce, replyMessage);
+        byte[] messageToSend;
+        if (encryptNonceResponseOnly) {
+
+            // messageToSend = privateKey(receivedNonce + replyMessage)
+
+            byte[] nonceWithReplyMessage = ByteArrayHelper.concatenateBytes(receivedNonce, replyMessage);
             messageToSend = EncryptDecryptHelper.encryptByte(nonceWithReplyMessage, this.encryptCipher);
         } else {
-            byte[] encryptedNonce = EncryptDecryptHelper.encryptByte(clientHelloNonce, this.encryptCipher);
+
+            // messageToSend = privateKey(receivedNonce) + replyMessage
+
+            byte[] encryptedNonce = EncryptDecryptHelper.encryptByte(receivedNonce, this.encryptCipher);
             messageToSend = ByteArrayHelper.concatenateBytes(encryptedNonce, replyMessage);
         }
 

@@ -25,7 +25,7 @@ public class TestServer {
         byte[] receivedMessage = serverSocket.readByteArrayForClient(0);
 
 
-        this.decryptedMessage = EncryptDecryptHelper.decryptBytes(receivedMessage, TestEncryptDecrypt.getDecryptCipher());
+        this.decryptedMessage = EncryptDecryptHelper.decryptBytes(receivedMessage, TestOfAwesomeness.getDecryptCipher());
 
 
     }
