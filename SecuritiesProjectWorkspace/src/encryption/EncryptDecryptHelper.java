@@ -1,7 +1,5 @@
 package encryption;
 
-import constants.AuthenticationConstants;
-
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
@@ -10,7 +8,6 @@ import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,8 +16,8 @@ import java.util.List;
  */
 public class EncryptDecryptHelper {
 
-    private static final int ENCRYPT_BLOCK_LENGTH = 117;
-    private static final int DECRYPT_BLOCK_LENGTH = 128;
+    public static final int BLOCK_LENGTH_BEFORE_RSA = 117;
+    public static final int BLOCK_LENGTH_AFTER_RSA = 128;
 
     /**
      * Encrypts a string to a byte[]
@@ -45,11 +42,11 @@ public class EncryptDecryptHelper {
 
         try {
 
-//            byte[] latestBlock = new byte[AuthenticationConstants.ENCRYPT_BLOCK_LENGTH];
-            List<byte[]> blocks = spitByteArray(rawBytes, ENCRYPT_BLOCK_LENGTH);
+//            byte[] latestBlock = new byte[AuthenticationConstants.BLOCK_LENGTH_BEFORE_RSA];
+            List<byte[]> blocks = spitByteArray(rawBytes, BLOCK_LENGTH_BEFORE_RSA);
 
 
-            return cipherAndCombine(blocks, cipher, DECRYPT_BLOCK_LENGTH);
+            return cipherAndCombine(blocks, cipher, BLOCK_LENGTH_AFTER_RSA);
 
         } catch (BadPaddingException e) {
             e.printStackTrace();
@@ -73,11 +70,11 @@ public class EncryptDecryptHelper {
 
 
 
-            List<byte[]> blocks = spitByteArray(rawBytes, DECRYPT_BLOCK_LENGTH);
+            List<byte[]> blocks = spitByteArray(rawBytes, BLOCK_LENGTH_AFTER_RSA);
 
 //            byte[] decryptedBytes = cipher.doFinal(rawBytes);
 
-            byte[] decryptedCombinedWithZeroes = cipherAndCombine(blocks, cipher, ENCRYPT_BLOCK_LENGTH);
+            byte[] decryptedCombinedWithZeroes = cipherAndCombine(blocks, cipher, BLOCK_LENGTH_BEFORE_RSA);
 
             int lastValidIndex = 0;
             for (int i = decryptedCombinedWithZeroes.length - 1; i >= 0; i--) {
@@ -141,7 +138,6 @@ public class EncryptDecryptHelper {
 
             latestBlock.add(mByte);
             latestBlockCounter++;
-
 
             boolean refresh = false;
 
@@ -262,9 +258,6 @@ public class EncryptDecryptHelper {
     }
 
 
-    public static int getNonce() {
-        SecureRandom random = new SecureRandom();
-        return random.nextInt();
-    }
+
 
 }

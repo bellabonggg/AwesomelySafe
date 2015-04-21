@@ -2,16 +2,11 @@ package main;
 
 import AwesomeSockets.AwesomeClientSocket;
 import constants.AuthenticationConstants;
-import encryption.CertificateVerifier;
-import encryption.EncryptDecryptHelper;
-import encryption.SecurityFileReader;
+import encryption.*;
 import constants.FilePaths;
 import tests.TestEncryptDecrypt;
 
-import javax.crypto.Cipher;
-import javax.crypto.KeyGenerator;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.SecretKey;
+import javax.crypto.*;
 import javax.security.cert.CertificateException;
 import javax.security.cert.X509Certificate;
 
@@ -21,6 +16,7 @@ import java.io.InputStream;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 
 /**
  * Created by JiaHao on 19/4/15.
@@ -31,13 +27,16 @@ public class AwesomeFileTransferClient {
     private Cipher encryptCipher;
     private byte[] serverHelloMessage;
     private SecretKey key;
+    private byte[] helloNonce;
+    private byte[] askForCertNonce;
+
     public AwesomeFileTransferClient() throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
         this.clientSocket = new AwesomeClientSocket(AuthenticationConstants.SERVER_IP, AuthenticationConstants.PORT);
         
     }
 
 
-    public void start() throws IOException, NoSuchAlgorithmException, InvalidKeyException, NoSuchPaddingException {
+    public void start() throws IOException, NoSuchAlgorithmException, InvalidKeyException, NoSuchPaddingException, BadPaddingException, IllegalBlockSizeException {
         authenticationProtocol();
         confidentialityProtocol();
     }
@@ -68,7 +67,7 @@ public class AwesomeFileTransferClient {
 
     }
 
-    private void confidentialityProtocol() throws NoSuchAlgorithmException, IOException, InvalidKeyException, NoSuchPaddingException {
+    private void confidentialityProtocol() throws NoSuchAlgorithmException, IOException, InvalidKeyException, NoSuchPaddingException, BadPaddingException, IllegalBlockSizeException {
         System.out.println("=== CONFIDENTIALITY PROTOCOL ===");
         //todo by pablo
 
@@ -78,25 +77,40 @@ public class AwesomeFileTransferClient {
 
     }
 
-    private void sendHelloToServer() throws IOException, IllegalAccessException {
+    private void sendHelloToServer() throws IOException, IllegalAccessException, NoSuchAlgorithmException {
 
         System.out.println("Sending hello to server...");
-        this.clientSocket.sendMessageLine(AuthenticationConstants.CLIENT_HELLO_MESSAGE);
+
+
+//        this.sendHashedMessageWithNonce(AuthenticationConstants.CLIENT_HELLO_MESSAGE.getBytes());
+
+//        this.clientSocket.sendMessageLine(AuthenticationConstants.CLIENT_HELLO_MESSAGE);
+
+        this.helloNonce = NonceHelper.getNonce();
+        byte[] concatenatedMessageWithNonce = ByteArrayHelper.concatenateBytes(this.helloNonce, AuthenticationConstants.CLIENT_HELLO_MESSAGE.getBytes());
+
+        this.clientSocket.sendByteArray(concatenatedMessageWithNonce);
 
         this.serverHelloMessage = this.clientSocket.readByteArray();
-
-//        if (!receivedMessage.equals(AuthenticationConstants.SERVER_REPLY_TO_HELLO)) {
-//
-//            throw new IllegalAccessException("Server did not reply to hello");
-//        }
-
     }
+
     private void askServerForCertificate() throws IOException, CertificateException, IllegalAccessException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
         // todo nonce
         System.out.println("Asking server for certificate...");
-        this.clientSocket.sendMessageLine(AuthenticationConstants.CLIENT_ASK_FOR_CERT);
 
-        byte[] receivedCertificate = this.clientSocket.readByteArray();
+        this.askForCertNonce = NonceHelper.getNonce();
+
+        byte[] askForCertMessageWithNonce = ByteArrayHelper.concatenateBytes(this.askForCertNonce, AuthenticationConstants.CLIENT_ASK_FOR_CERT.getBytes());
+
+        this.clientSocket.sendByteArray(askForCertMessageWithNonce);
+
+
+        byte[] receivedMessage = this.clientSocket.readByteArray();
+        byte[][] splitMessage = ByteArrayHelper.splitMessage(receivedMessage, EncryptDecryptHelper.BLOCK_LENGTH_AFTER_RSA);
+
+
+        byte[] encryptedAskForCertNonce = splitMessage[0];
+        byte[] receivedCertificate = splitMessage[1];
 
 
         X509Certificate serverCert = X509Certificate.getInstance(receivedCertificate);
@@ -114,14 +128,45 @@ public class AwesomeFileTransferClient {
             Cipher decryptCipher = EncryptDecryptHelper.getDecryptCipher(serverPublicKey, AuthenticationConstants.ALGORITHM_RSA);
             encryptCipher = EncryptDecryptHelper.getEncryptCipher(serverPublicKey, AuthenticationConstants.ALGORITHM_RSA);
 
-            String serverDecryptedMessage = EncryptDecryptHelper.decryptMessage(this.serverHelloMessage, decryptCipher);
+            byte[] serverDecryptedHelloWithNonce = EncryptDecryptHelper.decryptBytes(this.serverHelloMessage, decryptCipher);
 
-            // assumes the client knows what the servers hello message is?
-            if (!serverDecryptedMessage.equals(AuthenticationConstants.SERVER_REPLY_TO_HELLO)) {
+            byte[][] splitServerHelloWithNonce = ByteArrayHelper.splitMessage(serverDecryptedHelloWithNonce, NonceHelper.NONCE_LENGTH);
+
+            byte[] receivedAskForCertNonce = splitServerHelloWithNonce[0];
+            byte[] receivedServerHelloBytes = splitServerHelloWithNonce[1];
+
+            String serverDecryptedMessage = new String(receivedServerHelloBytes);
+
+            // check if the server reply to hello is correct
+
+            // decrypt askForCertNonce
+            byte[] decryptedAskForCertNonce = EncryptDecryptHelper.decryptBytes(encryptedAskForCertNonce, decryptCipher);
+
+
+            boolean verifyServerHello = serverDecryptedMessage.equals(AuthenticationConstants.SERVER_REPLY_TO_HELLO);
+            boolean verifyServerHelloNonce = NonceHelper.verifyNonces(this.helloNonce, receivedAskForCertNonce);
+            boolean verifyAskForCertNonce = NonceHelper.verifyNonces(this.askForCertNonce, decryptedAskForCertNonce);
+
+            boolean[] checks = new boolean[]{verifyServerHello, verifyServerHelloNonce, verifyAskForCertNonce};
+
+            boolean checksSucceeded = true;
+
+            for (int i = 0; i < checks.length; i++) {
+                boolean check = checks[i];
+                if (!check) {
+                    checksSucceeded = false;
+                    System.err.println("Check " + i + " failed.");
+
+                }
+            }
+
+            if (!checksSucceeded) {
                 throw new IllegalAccessException("Cannot verify server hello message!");
             }
         }
     }
+
+
     private void sendToServerSymmetricKey() throws NoSuchAlgorithmException, IOException {
         System.out.println("Sending symmetric key to server");
         this.key = KeyGenerator.getInstance("DES").generateKey();
@@ -135,12 +180,13 @@ public class AwesomeFileTransferClient {
     	return encryptedKey;
     }
 
-    private void sendToServerFileUpload() throws IOException, InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException {
+    private void sendToServerFileUpload() throws IOException, InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException, BadPaddingException, IllegalBlockSizeException {
     	//read file, change filepath
     	byte [] rawFile = SecurityFileReader.readFileIntoByteArray(TestEncryptDecrypt.BIG_FILE_PATH);
+    	System.out.println("Raw file: "+Arrays.toString(rawFile));
     	//encrypt file with symmetrickey
     	Cipher secretEncryptCipher = EncryptDecryptHelper.getEncryptCipher(this.key, AuthenticationConstants.ALGORITHM_DES);
-    	byte [] encryptedFile = EncryptDecryptHelper.encryptByte(rawFile, secretEncryptCipher);
+    	byte [] encryptedFile = secretEncryptCipher.doFinal(rawFile);
     	//send to server
     	this.clientSocket.sendByteArray(encryptedFile);
     }
@@ -152,8 +198,7 @@ public class AwesomeFileTransferClient {
 
     }
 
-
-    public static void main(String[] args) throws InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IOException {
+    public static void main(String[] args) throws InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IOException, BadPaddingException, IllegalBlockSizeException {
         AwesomeFileTransferClient client = new AwesomeFileTransferClient();
         client.start();
     }

@@ -46,10 +46,6 @@ public class CertificateVerifier {
      */
     public static boolean verifyCertificate(X509Certificate caCert, X509Certificate serverCert) throws CertificateException {
 
-
-
-
-
         PublicKey caCertificatePublicKey = caCert.getPublicKey();
 
         serverCert.checkValidity();

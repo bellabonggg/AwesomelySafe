@@ -21,4 +21,6 @@ public class AuthenticationConstants {
     public static final String ALGORITHM_DES = "DES/ECB/PKCS5Padding";
 
 
+
+
 }
