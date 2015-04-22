@@ -30,17 +30,21 @@ public class AwesomeFileTransferServer {
 
     private final int fileTransferProtocol;
 
+    private final String writeToFilePath;
+
     private Cipher symmetricCipher;
 
     private byte[] receivedFile;
 
-    public AwesomeFileTransferServer(int port, int fileTransferProtocol) throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
+    public AwesomeFileTransferServer(int port, String writeToFilePath, int fileTransferProtocol) throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
         this.serverSocket = new AwesomeServerSocket(port);
         this.encryptCipher = EncryptDecryptHelper.getEncryptCipher(FilePaths.SERVER_PRIVATE_KEY, AuthenticationConstants.ALGORITHM_RSA, 0);
 
         this.decryptCipher = EncryptDecryptHelper.getDecryptCipher(FilePaths.SERVER_PRIVATE_KEY, AuthenticationConstants.ALGORITHM_RSA, 0);
 
         this.fileTransferProtocol = fileTransferProtocol;
+
+        this.writeToFilePath = writeToFilePath;
     }
 
     public void start() throws IOException, BadPaddingException, IllegalBlockSizeException {
@@ -221,7 +225,7 @@ public class AwesomeFileTransferServer {
 //        out.close();
 
         System.out.println("writing to file");
-        FileOutputStream stream = new FileOutputStream("src/received_image");
+        FileOutputStream stream = new FileOutputStream(this.writeToFilePath);
         try {
             stream.write(writeToFileBytes);
         } finally {
@@ -236,7 +240,7 @@ public class AwesomeFileTransferServer {
 
     public static void main(String[] args) throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
 
-        AwesomeFileTransferServer server = new AwesomeFileTransferServer(AuthenticationConstants.PORT, 1);
+        AwesomeFileTransferServer server = new AwesomeFileTransferServer(AuthenticationConstants.PORT, "src/received_file", 1);
         server.start();
 
 //        System.out.println("Received file: " + Arrays.toString(server.getReceivedFile()));

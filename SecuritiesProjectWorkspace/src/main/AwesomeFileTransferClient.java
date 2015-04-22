@@ -36,8 +36,8 @@ public class AwesomeFileTransferClient {
 
     private byte[] fileToSend;
     private Key serverPublicKey;
-    public AwesomeFileTransferClient(int port, String pathOfFileToSend, int fileTransferProtocol) throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
-        this.clientSocket = new AwesomeClientSocket(AuthenticationConstants.SERVER_IP, port);
+    public AwesomeFileTransferClient(int port, String ipAddress, String pathOfFileToSend, int fileTransferProtocol) throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
+        this.clientSocket = new AwesomeClientSocket(ipAddress, port);
         this.pathOfFileToSend = pathOfFileToSend;
         this.fileTransferProtocol = fileTransferProtocol;
     }
@@ -267,7 +267,7 @@ public class AwesomeFileTransferClient {
     }
 
     public static void main(String[] args) throws InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IOException, BadPaddingException, IllegalBlockSizeException {
-        AwesomeFileTransferClient client = new AwesomeFileTransferClient(AuthenticationConstants.PORT, TestOfAwesomeness.BIG_IMAGE_PATH, 1);
+        AwesomeFileTransferClient client = new AwesomeFileTransferClient(AuthenticationConstants.PORT, AuthenticationConstants.SERVER_IP, TestOfAwesomeness.BIG_IMAGE_PATH, 1);
         client.start();
         System.out.println("File to send: " + Arrays.toString(client.getFileToSend()));
     }

@@ -204,11 +204,12 @@ public class TestOfAwesomeness extends TestCase {
 
         final int port = getRandomPort();
 
+        final String pathToWriteTo = "src/received_image";
         Thread serverThread = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    AwesomeFileTransferServer server = new AwesomeFileTransferServer(port, 1);
+                    AwesomeFileTransferServer server = new AwesomeFileTransferServer(port, pathToWriteTo, 1);
                     server.start();
                     results[1] = server.getReceivedFile();
                 } catch (IOException e) {
@@ -233,7 +234,7 @@ public class TestOfAwesomeness extends TestCase {
             @Override
             public void run() {
                 try {
-                    AwesomeFileTransferClient client = new AwesomeFileTransferClient(port, BIG_IMAGE_PATH, 1);
+                    AwesomeFileTransferClient client = new AwesomeFileTransferClient(port, AuthenticationConstants.SERVER_IP, BIG_IMAGE_PATH, 1);
                     client.start();
                     results[0] = client.getFileToSend();
                 } catch (IOException e) {
@@ -273,11 +274,12 @@ public class TestOfAwesomeness extends TestCase {
 
         final int port = getRandomPort();
 
+        final String pathToWriteTo = "src/received_image";
         Thread serverThread = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    AwesomeFileTransferServer server = new AwesomeFileTransferServer(port, 2);
+                    AwesomeFileTransferServer server = new AwesomeFileTransferServer(port, pathToWriteTo, 2);
                     server.start();
                     results[1] = server.getReceivedFile();
                 } catch (IOException e) {
@@ -302,7 +304,7 @@ public class TestOfAwesomeness extends TestCase {
             @Override
             public void run() {
                 try {
-                    AwesomeFileTransferClient client = new AwesomeFileTransferClient(port, BIG_IMAGE_PATH, 2);
+                    AwesomeFileTransferClient client = new AwesomeFileTransferClient(port, AuthenticationConstants.SERVER_IP, BIG_IMAGE_PATH, 2);
                     client.start();
                     results[0] = client.getFileToSend();
                 } catch (IOException e) {
