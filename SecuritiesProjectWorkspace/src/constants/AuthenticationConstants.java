@@ -18,7 +18,8 @@ public class AuthenticationConstants {
 
 
     public static final String ALGORITHM_RSA = "RSA/ECB/PKCS1Padding";
-    public static final String ALGORITHM_DES = "DES/ECB/PKCS5Padding";
+//    public static final String ALGORITHM_DES = "DES/ECB/PKCS5Padding";
+    public static final String ALGORITHM_AES = "AES/ECB/PKCS5Padding";
 
 
 

@@ -3,6 +3,7 @@ package tests;
 import constants.AuthenticationConstants;
 import encryption.EncryptDecryptHelper;
 import constants.FilePaths;
+import encryption.SecurityFileReader;
 import junit.framework.TestCase;
 import main.AwesomeFileTransferClient;
 import main.AwesomeFileTransferServer;
@@ -10,7 +11,6 @@ import main.AwesomeFileTransferServer;
 import javax.crypto.*;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.Key;
@@ -99,13 +99,13 @@ public class TestOfAwesomeness extends TestCase {
         byte[] rawBytes = new byte[(int) file.length()];
         fileInputStream.read(rawBytes);
 
-        Key symmetricKey = KeyGenerator.getInstance("DES").generateKey();
+        Key symmetricKey = KeyGenerator.getInstance(SecurityFileReader.AES_KEY).generateKey();
 
-        Cipher encryptCipher = EncryptDecryptHelper.getEncryptCipher(symmetricKey, AuthenticationConstants.ALGORITHM_DES);
+        Cipher encryptCipher = EncryptDecryptHelper.getEncryptCipher(symmetricKey, AuthenticationConstants.ALGORITHM_AES);
         byte[] encryptString = encryptCipher.doFinal(rawBytes);
 
 
-        Cipher decryptCipher = EncryptDecryptHelper.getDecryptCipher(symmetricKey, AuthenticationConstants.ALGORITHM_DES);
+        Cipher decryptCipher = EncryptDecryptHelper.getDecryptCipher(symmetricKey, AuthenticationConstants.ALGORITHM_AES);
 
         byte[] decryptedBytes = decryptCipher.doFinal(encryptString);
 

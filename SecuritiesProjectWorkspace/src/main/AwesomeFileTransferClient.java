@@ -218,8 +218,10 @@ public class AwesomeFileTransferClient {
 
     private void sendToServerSymmetricKey() throws NoSuchAlgorithmException, IOException {
         System.out.println("Sending symmetric key to server");
-        this.key = KeyGenerator.getInstance("DES").generateKey();
+        this.key = KeyGenerator.getInstance(SecurityFileReader.AES_KEY).generateKey();
         byte[] data = key.getEncoded();
+        System.out.println("client symm key length: " + data.length);
+        System.out.println(Arrays.toString(data));
         byte [] encryptedKey = encryptSymmetricKey(data);
         clientSocket.sendByteArray(encryptedKey);
         
@@ -235,7 +237,7 @@ public class AwesomeFileTransferClient {
 
 
     	//encrypt file with symmetrickey
-    	Cipher secretEncryptCipher = EncryptDecryptHelper.getEncryptCipher(this.key, AuthenticationConstants.ALGORITHM_DES);
+    	Cipher secretEncryptCipher = EncryptDecryptHelper.getEncryptCipher(this.key, AuthenticationConstants.ALGORITHM_AES);
     	byte [] encryptedFile = secretEncryptCipher.doFinal(this.fileToSend);
     	//send to server
     	this.clientSocket.sendByteArray(encryptedFile);

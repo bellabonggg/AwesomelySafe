@@ -16,6 +16,8 @@ import java.util.Arrays;
 public class SecurityFileReader {
 
 
+    public static final String RSA_KEY = "RSA";
+    public static final String AES_KEY = "AES";
     /**
      * Read a file from a path into a byte array
      *
@@ -58,7 +60,7 @@ public class SecurityFileReader {
 
 
         try {
-            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+            KeyFactory keyFactory = KeyFactory.getInstance(RSA_KEY);
 
             Key key;
 
