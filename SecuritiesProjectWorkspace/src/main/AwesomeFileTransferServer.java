@@ -91,6 +91,7 @@ public class AwesomeFileTransferServer {
             }
         }
 
+        this.writeBytesToFile(this.receivedFile);
 
         System.out.println("CP Ended");
     }
@@ -188,28 +189,45 @@ public class AwesomeFileTransferServer {
     private void waitForClientToSendFile() throws IOException, BadPaddingException, IllegalBlockSizeException {
     	System.out.println("Waiting for client to send file...");
     	byte [] finalRawData =  this.serverSocket.readByteArrayForClient(0);
+
+        System.out.println("File received, decrpyting...");
+
     	byte [] finalDecryptedData = symmetricCipher.doFinal(finalRawData);
 
 
         this.receivedFile = finalDecryptedData;
+
+        System.out.println("File decrypted.");
+
+
     }
     private void waitForClientToSendFileRSA() throws IOException, BadPaddingException, IllegalBlockSizeException {
         System.out.println("Waiting for client to send file...");
         byte [] finalRawData =  this.serverSocket.readByteArrayForClient(0);
+        System.out.println("File received, decrpyting...");
         byte [] finalDecryptedData = EncryptDecryptHelper.decryptBytes(finalRawData, this.decryptCipher);
 
 
         this.receivedFile = finalDecryptedData;
+        System.out.println("File decrypted.");
 
-        this.writeBytesToFile(this.receivedFile);
 
     }
 
     private void writeBytesToFile(byte[] writeToFileBytes) throws IOException {
 
-        FileOutputStream out = new FileOutputStream("received_file");
-        out.write(writeToFileBytes);
-        out.close();
+//        FileOutputStream out = new FileOutputStream("received_file");
+//        out.write(writeToFileBytes);
+//        out.close();
+
+        System.out.println("writing to file");
+        FileOutputStream stream = new FileOutputStream("src/received_image");
+        try {
+            stream.write(writeToFileBytes);
+        } finally {
+            stream.close();
+        }
+        System.out.println("writing done");
     }
 
     public byte[] getReceivedFile() {
@@ -218,7 +236,7 @@ public class AwesomeFileTransferServer {
 
     public static void main(String[] args) throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
 
-        AwesomeFileTransferServer server = new AwesomeFileTransferServer(AuthenticationConstants.PORT, 2);
+        AwesomeFileTransferServer server = new AwesomeFileTransferServer(AuthenticationConstants.PORT, 1);
         server.start();
 
 //        System.out.println("Received file: " + Arrays.toString(server.getReceivedFile()));
