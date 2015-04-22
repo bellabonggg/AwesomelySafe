@@ -90,7 +90,7 @@ public class TestOfAwesomeness extends TestCase {
 
     }
 
-    public void testEncryptDecryptBigBytesSymmetric() throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
+    public void testEncryptDecryptBigBytesSymmetric() throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
 
         File file = new File(BIG_FILE_PATH);
 
@@ -102,12 +102,12 @@ public class TestOfAwesomeness extends TestCase {
         Key symmetricKey = KeyGenerator.getInstance("DES").generateKey();
 
         Cipher encryptCipher = EncryptDecryptHelper.getEncryptCipher(symmetricKey, AuthenticationConstants.ALGORITHM_DES);
-        byte[] encryptString = EncryptDecryptHelper.encryptByte(rawBytes, encryptCipher);
+        byte[] encryptString = encryptCipher.doFinal(rawBytes);
 
 
         Cipher decryptCipher = EncryptDecryptHelper.getDecryptCipher(symmetricKey, AuthenticationConstants.ALGORITHM_DES);
 
-        byte[] decryptedBytes = EncryptDecryptHelper.decryptBytes(encryptString, decryptCipher);
+        byte[] decryptedBytes = decryptCipher.doFinal(encryptString);
 
         assertTrue(Arrays.equals(rawBytes, decryptedBytes));
 
@@ -123,11 +123,13 @@ public class TestOfAwesomeness extends TestCase {
 
         final byte[][] results = new byte[2][];
 
+        final int port = getRandomPort();
+
         Thread serverThread = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    TestServer server = new TestServer();
+                    TestServer server = new TestServer(port);
                     results[1] = server.getDecryptedBytes();
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -147,7 +149,7 @@ public class TestOfAwesomeness extends TestCase {
             @Override
             public void run() {
                 try {
-                    TestClient client = new TestClient();
+                    TestClient client = new TestClient(port);
                     results[0] = client.getRawBytes();
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -196,15 +198,17 @@ public class TestOfAwesomeness extends TestCase {
      * Tests the file transfer protocol
      * @throws InterruptedException
      */
-    public void testFileTransferProtocol() throws InterruptedException {
+    public void testFileTransferProtocolCP1() throws InterruptedException {
 
         final byte[][] results = new byte[2][];
+
+        final int port = getRandomPort();
 
         Thread serverThread = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    AwesomeFileTransferServer server = new AwesomeFileTransferServer(0);
+                    AwesomeFileTransferServer server = new AwesomeFileTransferServer(port, 1);
                     server.start();
                     results[1] = server.getReceivedFile();
                 } catch (IOException e) {
@@ -229,7 +233,7 @@ public class TestOfAwesomeness extends TestCase {
             @Override
             public void run() {
                 try {
-                    AwesomeFileTransferClient client = new AwesomeFileTransferClient(BIG_IMAGE_PATH, 0);
+                    AwesomeFileTransferClient client = new AwesomeFileTransferClient(port, BIG_IMAGE_PATH, 1);
                     client.start();
                     results[0] = client.getFileToSend();
                 } catch (IOException e) {
@@ -256,6 +260,81 @@ public class TestOfAwesomeness extends TestCase {
 
         assertTrue(Arrays.equals(results[0], results[1]));
 
+    }
+
+    /**
+     * Tests the file transfer protocol
+     * @throws InterruptedException
+     */
+    public void testFileTransferProtocolCP2() throws InterruptedException {
+
+
+        final byte[][] results = new byte[2][];
+
+        final int port = getRandomPort();
+
+        Thread serverThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    AwesomeFileTransferServer server = new AwesomeFileTransferServer(port, 2);
+                    server.start();
+                    results[1] = server.getReceivedFile();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (InvalidKeyException e) {
+                    e.printStackTrace();
+                } catch (NoSuchAlgorithmException e) {
+                    e.printStackTrace();
+                } catch (NoSuchPaddingException e) {
+                    e.printStackTrace();
+                } catch (IllegalBlockSizeException e) {
+                    e.printStackTrace();
+                } catch (BadPaddingException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        });
+
+
+        Thread clientThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    AwesomeFileTransferClient client = new AwesomeFileTransferClient(port, BIG_IMAGE_PATH, 2);
+                    client.start();
+                    results[0] = client.getFileToSend();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (InvalidKeyException e) {
+                    e.printStackTrace();
+                } catch (NoSuchAlgorithmException e) {
+                    e.printStackTrace();
+                } catch (NoSuchPaddingException e) {
+                    e.printStackTrace();
+                } catch (IllegalBlockSizeException e) {
+                    e.printStackTrace();
+                } catch (BadPaddingException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        serverThread.start();
+
+        clientThread.start();
+
+        serverThread.join();
+        clientThread.join();
+
+        assertTrue(Arrays.equals(results[0], results[1]));
+
+    }
+
+    private int getRandomPort() {
+
+        return 4000 + (int)(Math.random()*6000);
     }
 
 }

@@ -32,8 +32,8 @@ public class AwesomeFileTransferServer {
 
     private byte[] receivedFile;
 
-    public AwesomeFileTransferServer(int fileTransferProtocol) throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
-        this.serverSocket = new AwesomeServerSocket(AuthenticationConstants.PORT);
+    public AwesomeFileTransferServer(int port, int fileTransferProtocol) throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
+        this.serverSocket = new AwesomeServerSocket(port);
         this.encryptCipher = EncryptDecryptHelper.getEncryptCipher(FilePaths.SERVER_PRIVATE_KEY, AuthenticationConstants.ALGORITHM_RSA, 0);
 
         this.decryptCipher = EncryptDecryptHelper.getDecryptCipher(FilePaths.SERVER_PRIVATE_KEY, AuthenticationConstants.ALGORITHM_RSA, 0);
@@ -62,10 +62,14 @@ public class AwesomeFileTransferServer {
         }
     }
 
-    public void confidentialityProtocol() throws BadPaddingException, IllegalBlockSizeException {
+    public void confidentialityProtocol() throws BadPaddingException, IllegalBlockSizeException, IOException {
         System.out.println("=== CONFIDENTIALITY PROTOCOL ===");
 
-        if (fileTransferProtocol == 0) {
+        if (fileTransferProtocol == 1) {
+            waitForClientToSendFileRSA();
+
+        } else {
+
             // DES
 
             try {
@@ -83,13 +87,10 @@ public class AwesomeFileTransferServer {
             } catch (NoSuchPaddingException e) {
                 e.printStackTrace();
             }
-
-        } else {
-
-            // RSA
         }
 
 
+        System.out.println("CP Ended");
     }
 
 
@@ -184,6 +185,14 @@ public class AwesomeFileTransferServer {
 
         this.receivedFile = finalDecryptedData;
     }
+    private void waitForClientToSendFileRSA() throws IOException, BadPaddingException, IllegalBlockSizeException {
+        System.out.println("Waiting for client to send file...");
+        byte [] finalRawData =  this.serverSocket.readByteArrayForClient(0);
+        byte [] finalDecryptedData = EncryptDecryptHelper.decryptBytes(finalRawData,this.decryptCipher);
+
+
+        this.receivedFile = finalDecryptedData;
+    }
 
     public byte[] getReceivedFile() {
         return receivedFile;
@@ -191,7 +200,7 @@ public class AwesomeFileTransferServer {
 
     public static void main(String[] args) throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
 
-        AwesomeFileTransferServer server = new AwesomeFileTransferServer(0);
+        AwesomeFileTransferServer server = new AwesomeFileTransferServer(AuthenticationConstants.PORT, 1);
         server.start();
 
         System.out.println("Received file: " + Arrays.toString(server.getReceivedFile()));

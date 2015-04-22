@@ -17,9 +17,9 @@ public class TestServer {
 
     private byte[] decryptedMessage;
 
-    public TestServer() throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
+    public TestServer(int port) throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
 
-        AwesomeServerSocket serverSocket = new AwesomeServerSocket(AuthenticationConstants.PORT);
+        AwesomeServerSocket serverSocket = new AwesomeServerSocket(port);
 
         serverSocket.acceptClient();
         byte[] receivedMessage = serverSocket.readByteArrayForClient(0);
@@ -39,7 +39,7 @@ public class TestServer {
 
     public static void main(String[] args) throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
 
-        TestServer server = new TestServer();
+        TestServer server = new TestServer(AuthenticationConstants.PORT);
         System.out.println(Arrays.toString(server.getDecryptedBytes()));
 
     }

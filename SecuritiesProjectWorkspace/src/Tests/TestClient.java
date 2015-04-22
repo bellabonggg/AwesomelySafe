@@ -18,9 +18,9 @@ public class TestClient {
 
     private byte[] rawBytes;
 
-    public TestClient() throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
+    public TestClient(int port) throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
 
-        AwesomeClientSocket awesomeClientSocket = new AwesomeClientSocket(AuthenticationConstants.SERVER_IP, AuthenticationConstants.PORT);
+        AwesomeClientSocket awesomeClientSocket = new AwesomeClientSocket(AuthenticationConstants.SERVER_IP, port);
 
 
 
@@ -47,6 +47,6 @@ public class TestClient {
 
     public static void main(String[] args) throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
 
-        TestClient client = new TestClient();
+        TestClient client = new TestClient(AuthenticationConstants.PORT);
     }
 }
