@@ -1,9 +1,5 @@
 # Awesomely Safe
 
-
-
-## Introduction
-
 AwesomelySafe is a file transfer server and client designed to send a file over a TCP socket connection. 
 
 ## Technologies
@@ -41,7 +37,7 @@ AwesomeFileTransferClient client = new AwesomeFileTransferClient(PORT, SERVER_IP
 client.start();
 ```
 
-Note that `ENCRYPTION_METHOD` is an integer that takes a value of `1` or `2` corresponding to [CP-1](#cp-1) and [CP-2](#cp-2)
+Note that `ENCRYPTION_METHOD` is an integer that takes a value of `1` or `2` corresponding to [CP-1](#confidentiality-protocol-1) and [CP-2](#confidentiality-protocol-2)
 
 ## Tests
 
