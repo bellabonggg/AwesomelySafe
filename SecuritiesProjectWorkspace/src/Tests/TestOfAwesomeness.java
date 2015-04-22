@@ -37,7 +37,7 @@ public class TestOfAwesomeness extends TestCase {
      */
     public static Cipher getEncryptCipher() throws InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException, IOException {
 
-        return EncryptDecryptHelper.getEncryptCipher(FilePaths.SERVER_PRIVATE_KEY, AuthenticationConstants.ALGORITHM_RSA,0);
+        return EncryptDecryptHelper.getEncryptCipher(FilePaths.SERVER_PRIVATE_KEY, AuthenticationConstants.ALGORITHM_RSA, 0);
 
     }
 
@@ -208,6 +208,7 @@ public class TestOfAwesomeness extends TestCase {
         Thread serverThread = new Thread(new Runnable() {
             @Override
             public void run() {
+
                 try {
                     AwesomeFileTransferServer server = new AwesomeFileTransferServer(port, pathToWriteTo, 1);
                     server.start();
@@ -220,10 +221,6 @@ public class TestOfAwesomeness extends TestCase {
                     e.printStackTrace();
                 } catch (NoSuchPaddingException e) {
                     e.printStackTrace();
-                } catch (IllegalBlockSizeException e) {
-                    e.printStackTrace();
-                } catch (BadPaddingException e) {
-                    e.printStackTrace();
                 }
 
             }
@@ -233,23 +230,25 @@ public class TestOfAwesomeness extends TestCase {
         Thread clientThread = new Thread(new Runnable() {
             @Override
             public void run() {
+
                 try {
                     AwesomeFileTransferClient client = new AwesomeFileTransferClient(port, AuthenticationConstants.SERVER_IP, BIG_IMAGE_PATH, 1);
                     client.start();
                     results[0] = client.getFileToSend();
                 } catch (IOException e) {
                     e.printStackTrace();
-                } catch (InvalidKeyException e) {
-                    e.printStackTrace();
                 } catch (NoSuchAlgorithmException e) {
+                    e.printStackTrace();
+                } catch (InvalidKeyException e) {
                     e.printStackTrace();
                 } catch (NoSuchPaddingException e) {
                     e.printStackTrace();
-                } catch (IllegalBlockSizeException e) {
-                    e.printStackTrace();
                 } catch (BadPaddingException e) {
                     e.printStackTrace();
+                } catch (IllegalBlockSizeException e) {
+                    e.printStackTrace();
                 }
+
             }
         });
 
@@ -278,6 +277,7 @@ public class TestOfAwesomeness extends TestCase {
         Thread serverThread = new Thread(new Runnable() {
             @Override
             public void run() {
+
                 try {
                     AwesomeFileTransferServer server = new AwesomeFileTransferServer(port, pathToWriteTo, 2);
                     server.start();
@@ -290,11 +290,8 @@ public class TestOfAwesomeness extends TestCase {
                     e.printStackTrace();
                 } catch (NoSuchPaddingException e) {
                     e.printStackTrace();
-                } catch (IllegalBlockSizeException e) {
-                    e.printStackTrace();
-                } catch (BadPaddingException e) {
-                    e.printStackTrace();
                 }
+
 
             }
         });

@@ -47,28 +47,39 @@ public class AwesomeFileTransferServer {
         this.writeToFilePath = writeToFilePath;
     }
 
-    public void start() throws IOException, BadPaddingException, IllegalBlockSizeException {
-        this.serverSocket.acceptClient();
-
-        authenticationProtocol();
-        confidentialityProtocol();
-    }
-
-    public void authenticationProtocol() {
-        System.out.println("=== AUTHENTICATION PROTOCOL ===");
-        // todo error catching
+    public void start() throws IOException {
 
         try {
-            waitForClientToSayHello();
-            waitForClientToAskForCertificate();
+            this.serverSocket.acceptClient();
+            authenticationProtocol();
+            confidentialityProtocol();
         } catch (IOException e) {
             e.printStackTrace();
         } catch (IllegalAccessException e) {
             e.printStackTrace();
+        } catch (IllegalBlockSizeException e) {
+            e.printStackTrace();
+        } catch (InvalidKeyException e) {
+            e.printStackTrace();
+        } catch (NoSuchPaddingException e) {
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (BadPaddingException e) {
+            e.printStackTrace();
         }
+
+        this.serverSocket.closeServer();
     }
 
-    public void confidentialityProtocol() throws BadPaddingException, IllegalBlockSizeException, IOException {
+    public void authenticationProtocol() throws IOException, IllegalAccessException {
+        System.out.println("=== AUTHENTICATION PROTOCOL ===");
+
+        waitForClientToSayHello();
+        waitForClientToAskForCertificate();
+    }
+
+    public void confidentialityProtocol() throws BadPaddingException, IllegalBlockSizeException, IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
         System.out.println("=== CONFIDENTIALITY PROTOCOL ===");
 
         if (fileTransferProtocol == 1) {
@@ -76,23 +87,9 @@ public class AwesomeFileTransferServer {
 
         } else {
 
-            // DES
+            waitForClientToSendSymmetricKey();
+            waitForClientToSendFile();
 
-            try {
-                waitForClientToSendSymmetricKey();
-                waitForClientToSendFile();
-
-                // etc
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (InvalidKeyException e) {
-                e.printStackTrace();
-            } catch (NoSuchAlgorithmException e) {
-                e.printStackTrace();
-            } catch (NoSuchPaddingException e) {
-                e.printStackTrace();
-            }
         }
 
         this.writeBytesToFile(this.receivedFile);

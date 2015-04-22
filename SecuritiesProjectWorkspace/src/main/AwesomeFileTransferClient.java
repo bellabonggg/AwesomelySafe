@@ -70,6 +70,13 @@ public class AwesomeFileTransferClient {
             e.printStackTrace();
         } catch (NoSuchPaddingException e) {
             e.printStackTrace();
+        } finally {
+
+
+            // don't close here, as closing before the server can read the message fully even without errors will throw an EOF exception
+            // at the server
+//            this.closeClient();
+
         }
 
 
