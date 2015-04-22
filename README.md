@@ -59,7 +59,7 @@ Even though the subsequent confidentiality protocols keep the files sent private
 
 ![CP-1 Specification](https://raw.githubusercontent.com/skewedlines/AwesomelySafe/master/Specifications/CP1.png)
 
-RSA crpytography is employed to encrypt and send a file over the network.
+The received server public key in the authentication protocol earlier is employed to encrypt and send a file over the network.
 
 ### Confidentiality Protocol 2
 
