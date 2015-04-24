@@ -7,6 +7,7 @@ import encryption.SecurityFileReader;
 import junit.framework.TestCase;
 import main.AwesomeFileTransferClient;
 import main.AwesomeFileTransferServer;
+import org.junit.Test;
 
 import javax.crypto.*;
 import java.io.File;
@@ -26,6 +27,13 @@ public class TestOfAwesomeness extends TestCase {
     public static final String SMALL_FILE_PATH = "src/tests/test_files/testFile.txt";
 
     public static final String BIG_IMAGE_PATH = "src/tests/test_files/bigImage.jpg";
+
+    public static final String TEST_FILE_DIRECTORY = "src/tests/test_files/";
+    public static final String[] DEMO_TEST_FILE_NAMES = new String[]{
+            "test.txt.txt",
+            "test1.pdf",
+            "test2.class"
+    };
 
     /**
      * Helper method to get an encrypting cipher for testing
@@ -200,65 +208,7 @@ public class TestOfAwesomeness extends TestCase {
      */
     public void testFileTransferProtocolCP1() throws InterruptedException {
 
-        final byte[][] results = new byte[2][];
-
-        final int port = getRandomPort();
-
-        final String pathToWriteTo = "src/received_image";
-        Thread serverThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-
-                try {
-                    AwesomeFileTransferServer server = new AwesomeFileTransferServer(port, pathToWriteTo, 1);
-                    server.start();
-                    results[1] = server.getReceivedFile();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (InvalidKeyException e) {
-                    e.printStackTrace();
-                } catch (NoSuchAlgorithmException e) {
-                    e.printStackTrace();
-                } catch (NoSuchPaddingException e) {
-                    e.printStackTrace();
-                }
-
-            }
-        });
-
-
-        Thread clientThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-
-                try {
-                    AwesomeFileTransferClient client = new AwesomeFileTransferClient(port, AuthenticationConstants.SERVER_IP, BIG_IMAGE_PATH, 1);
-                    client.start();
-                    results[0] = client.getFileToSend();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (NoSuchAlgorithmException e) {
-                    e.printStackTrace();
-                } catch (InvalidKeyException e) {
-                    e.printStackTrace();
-                } catch (NoSuchPaddingException e) {
-                    e.printStackTrace();
-                } catch (BadPaddingException e) {
-                    e.printStackTrace();
-                } catch (IllegalBlockSizeException e) {
-                    e.printStackTrace();
-                }
-
-            }
-        });
-
-        serverThread.start();
-        clientThread.start();
-
-        serverThread.join();
-        clientThread.join();
-
-        assertTrue(Arrays.equals(results[0], results[1]));
+        testFileTransfer(BIG_FILE_PATH, 1);
 
     }
 
@@ -269,17 +219,58 @@ public class TestOfAwesomeness extends TestCase {
     public void testFileTransferProtocolCP2() throws InterruptedException {
 
 
+        testFileTransfer(BIG_FILE_PATH, 2);
+
+    }
+
+    /**
+     * Test with demo files provided
+     * @throws InterruptedException
+     */
+    public void testDemo() throws InterruptedException {
+
+        for (String fileName : DEMO_TEST_FILE_NAMES) {
+
+            String source = TEST_FILE_DIRECTORY + fileName;
+
+            for (int i = 1; i < 3; i++) {
+
+                testFileTransfer(source, i);
+
+            }
+
+
+        }
+
+
+    }
+
+    /**
+     * Main helper method to test
+     * @param source
+     * @param protocol
+     * @throws InterruptedException
+     */
+    private void testFileTransfer(final String source, final int protocol) throws InterruptedException {
+
+        System.out.println("Sending: " + source + " with CP-" + protocol);
         final byte[][] results = new byte[2][];
 
         final int port = getRandomPort();
 
-        final String pathToWriteTo = "src/received_image";
+        String[] sourceSplit = source.split("/");
+        final String fileName = sourceSplit[sourceSplit.length-1];
+        String destinationDir = "src/tests/received_files/";
+        final String pathToWriteTo = destinationDir + fileName;
+
+
+
         Thread serverThread = new Thread(new Runnable() {
             @Override
             public void run() {
 
                 try {
-                    AwesomeFileTransferServer server = new AwesomeFileTransferServer(port, pathToWriteTo, 2);
+                    AwesomeFileTransferServer server = new AwesomeFileTransferServer(port, pathToWriteTo, protocol);
                     server.start();
                     results[1] = server.getReceivedFile();
                 } catch (IOException e) {
@@ -301,7 +292,7 @@ public class TestOfAwesomeness extends TestCase {
             @Override
             public void run() {
                 try {
-                    AwesomeFileTransferClient client = new AwesomeFileTransferClient(port, AuthenticationConstants.SERVER_IP, BIG_IMAGE_PATH, 2);
+                    AwesomeFileTransferClient client = new AwesomeFileTransferClient(port, AuthenticationConstants.SERVER_IP, source, protocol);
                     client.start();
                     results[0] = client.getFileToSend();
                 } catch (IOException e) {
